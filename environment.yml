@@ -1,0 +1,8 @@
+name: 5aua0
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch
+  - torchvision
+prefix: /Users/twanleloup/opt/anaconda3/envs/5aua0
