@@ -12,7 +12,7 @@
 source activate 5aua0
 
 # go into your project folder
-cd $TMPDIR/5aua0-project-template-hpc
+cd $TMPDIR/5aua0-2022-group-18
 
 # make sure on correct branch
 git checkout master
