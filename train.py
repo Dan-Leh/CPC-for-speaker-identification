@@ -5,9 +5,9 @@ from torch.utils.data import DataLoader
 import torch
 
 from config import Config
-from data import Cifar10Dataset
+from data import LibriSpeech
 
-from model import Network
+from FS_model import MyModel
 
 
 def train():
