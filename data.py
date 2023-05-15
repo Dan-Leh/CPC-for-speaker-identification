@@ -19,12 +19,12 @@ class LibriDataset(Dataset):
 
         self.num_samples = len(self.filename_list)
         
-        Libri_dir = os.path.join(data_dir, 'LibriSpeech', 'train-clean-100')
+        Libri_dir = os.path.join(data_dir, 'LibriSpeech', 'train-clean-100/')
         # creating list of filepaths from filenames
         self.filepath_list = [Libri_dir] * self.num_samples
         for i, filename in enumerate(self.filename_list):
             split_name = filename.split('-')
-            self.filepath_list[i] += os.path.join(Libri_dir, split_name[0], split_name[1], filename+'.flac')
+            self.filepath_list[i] += os.path.join(split_name[0], split_name[1], filename+'.flac')
         
         self.labelID_list = os.listdir(Libri_dir)
 
@@ -34,27 +34,17 @@ class LibriDataset(Dataset):
 
     def test_dataset(self):
         for path in self.filepath_list:
-            print(torchaudio.info(path))
+            if not os.path.isfile(path): print(f'not a file: {path}')
 
 
     # Returns a dataset sample given an idx [0, len(dataset))
     def __getitem__(self, idx):
+        audio_fp = self.filepath_list[idx]
+        speaker_ID = self.filename_list[idx].split('-')[0]
 
+        waveform, sample_rate = torchaudio.load(audio_fp, normalize=True)
+        
+        transform = torchaudio.transforms.MelSpectrogram(sample_rate)
+        mel_spectrogram = transform(waveform)
 
-
-        idx_str = str(idx).zfill(6)
-
-        image_path = os.path.join(self.gt_dir_img, idx_str + '.png')
-        image = read_image(image_path)
-        image = image / 255.
-
-        label = self.labels[idx_str]
-        label = torch.as_tensor(label, dtype=torch.long)
-
-        # Normalize the image
-        image = image - self.mean
-        image = image / self.std
-
-        image = torch.as_tensor(image, dtype=torch.float)
-
-        return image, label
+        return mel_spectrogram, speaker_ID
