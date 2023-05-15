@@ -2,11 +2,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-
-
 from config import Config
 from data import *
-
 from FS_model import Model
 
 
@@ -66,8 +63,3 @@ def train():
   
 if __name__ == "__main__":
   train()
-
-
-
-
-
