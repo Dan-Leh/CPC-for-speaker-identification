@@ -1,5 +1,7 @@
 import torch.nn.functional as F
+import torch.nn as nn
 from torch.nn import init
+
 
 # Code bases on https://towardsdatascience.com/audio-deep-learning-made-simple-sound-classification-step-by-step-cebc936bbe5 # 
 

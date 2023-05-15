@@ -14,7 +14,7 @@ def train():
     optimizer = torch.optim.Adam([cfg.adam1, cfg.adam2],lr=cfg.lr)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=cfg.max_lr,
                                                 steps_per_epoch=int(len(DL_train)),
-                                                epochs=cfg.epochs
+                                                epochs=cfg.epochs,
                                                 anneal_strategy='linear')
      # Initialize model
     model = Model(cfg)
@@ -23,7 +23,7 @@ def train():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     #Training loop
-    for epoch in range(cfg.epochs)
+    for epoch in range(cfg.epochs):
         running_loss = 0
         correct_pred = 0
         total_pred = 0
@@ -32,7 +32,7 @@ def train():
             inputs, labels = data[0].to(device), data[1].to(device)
 
             optimizer.zero_grad()
-            out = model(inputs, labels)
+            outputs = model(inputs, labels)
             loss = criterion(outputs,labels)
             # Backprop
             loss.backward()
@@ -48,14 +48,12 @@ def train():
             correct_pred += (pred == labels).sum().item()
             total_pred += pred.shape[0]
 
-            if i % cfg.log_iterations == 0:
-                if i == 0:
-                    loss_avg = running_loss
-                else:
-                    loss_avg = running_loss/cfg.log_iterations
-                print("Iteration {} - Loss: {}".format(i, round(loss_avg, 5)))
-                running_loss = 0.0
-            i += 1
+        # Print stats at the end of the epoch
+        num_batches = len(DL_train)
+        avg_loss = running_loss / num_batches
+        acc = correct_pred/total_pred
+        print(f'Epoch: {epoch}, Loss: {avg_loss:.2f}, Accuracy: {acc:.2f}')
+
     print('Finished Training')
     save_path = 'model.pth'
     torch.save(model.state_dict(), save_path)
