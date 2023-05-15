@@ -77,10 +77,3 @@ class Model(nn.Module):
 
         # Final output
         return x
-
-
-myModel = Model()
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-myModel = myModel.to(device)
-# Check that it is on Cuda
-next(myModel.parameters()).device
