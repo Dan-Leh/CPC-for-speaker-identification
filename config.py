@@ -8,7 +8,7 @@ class Config:
     lr = 0.005
     max_lr = 0.005
     num_classes = 251
-    gt_dir = "./data/YOURDATASET/"
+    gt_dir = "./data/LibriSpeech/"
     num_iterations = 10000
     log_iterations = 100
     enable_cuda = True
