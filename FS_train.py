@@ -4,23 +4,27 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from config import Config
 from data import *
-from FS_model import Model
+from FS_model import *
 
 
-def train():
+trainset = LibriDataset('train')
+cfg = Config()
+DL_train = torch.utils.data.DataLoader(trainset, batch_size=cfg.batch_size_train, shuffle=True)
+DL_val = torch.utils.data.DataLoader(trainset, batch_size=cfg.batch_size_test, shuffle=False)
+
+def train(model, DL_train):
     # Configuration settings
-    cfg = Config()
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam([cfg.adam1, cfg.adam2],lr=cfg.lr)
+    optimizer = torch.optim.Adam(model.parameters(),lr=cfg.lr)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=cfg.max_lr,
                                                 steps_per_epoch=int(len(DL_train)),
                                                 epochs=cfg.epochs,
                                                 anneal_strategy='linear')
      # Initialize model
-    model = Model(cfg)
     model.train()
-    model = model.to(device)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+  
 
     #Training loop
     for epoch in range(cfg.epochs):
@@ -58,6 +62,8 @@ def train():
     save_path = 'model.pth'
     torch.save(model.state_dict(), save_path)
     print("Saved trained model as {}.".format(save_path))
-  
+
+
+myModel = Model()
 if __name__ == "__main__":
-  train()
+  train(myModel, DL_train)

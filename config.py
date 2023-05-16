@@ -5,8 +5,8 @@ from dataclasses import dataclass
 class Config:
     batch_size_train = 32
     batch_size_test = 25
-    lr = 0.005
-    max_lr = 0.005
+    lr = 0.001
+    max_lr = 0.001
     num_classes = 251
     gt_dir = "./data/LibriSpeech/"
     num_iterations = 10000
