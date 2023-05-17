@@ -8,7 +8,7 @@ if os.path.split(os.getcwd())[-1] != '5aua0-2022-group-18':
 print(os.getcwd())
 
 trainset = LibriDataset('train')
-testset = LibriDataset('test')
+# testset = LibriDataset('test')
 
 # lengths_train = trainset.get_all_items()
 # lengths_test = testset.get_all_items()
@@ -18,7 +18,7 @@ testset = LibriDataset('test')
 label = [0]*10
 for i in range(10):
     img, label[i] = trainset.__getitem__(i)
-    img = img.numpy().squeeze()
+    img = img.numpy().squeeze()*255
     img = Image.fromarray(img).convert('L')
     img.save('spectrogram'+str(i)+'.png')
 

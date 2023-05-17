@@ -1,6 +1,7 @@
 import os
 import torch
 import time
+import sklearn.preprocessing as preprocess
 import numpy as np
 import torchaudio
 from torch.utils.data import Dataset
@@ -42,24 +43,51 @@ class LibriDataset(Dataset):
         for idx in range(self.__len__()):
             audio_fp = self.filepath_list[idx]
             waveform, sample_rate = torchaudio.load(audio_fp, normalize=True)
-            waveform = self.crop_audio(waveform)
+            # waveform = self.crop_audio(waveform)
             lengths[idx] = len(waveform[0])
         return lengths
     
     def crop_audio(self, waveform):
-        #TODO: change cropping to make it random
-        cropped_waveform = waveform[0][0:22580]
-        return cropped_waveform.unsqueeze(0) # to make dimension 1 x len
+        waveform = waveform.squeeze() # get rid of channel dimension
+        crop_length = 22580 # crop length equivalent to length of smallest sample
+        start_idx = np.random.randint(len(waveform)-crop_length)
+        end_idx = start_idx+crop_length
+        return waveform[start_idx:end_idx].unsqueeze(0) # cropped_waveform, with channel dimension
+    
+    def normalize(self, spectrogram):
+        '''
+        Input: 'spectrogram' Tensor of dimensions 1xHxW
+        Output: Column-wise normalized 'spectrogram' Tensor of dimensions 1xHxW
+        '''
+        stds, means = torch.std_mean(spectrogram, dim = 1)
+        
+        return (spectrogram - means) / stds
+
 
     # Returns a dataset sample given an idx [0, len(dataset))
     def __getitem__(self, idx):
         audio_fp = self.filepath_list[idx]
         speaker_ID = self.filename_list[idx].split('-')[0]
 
-        waveform, sample_rate = torchaudio.load(audio_fp, normalize=True)
-        waveform = self.crop_audio(waveform)
+        waveform, sample_rate = torchaudio.load(audio_fp, normalize = True)
+        waveform = self.crop_audio(waveform) #take random crop of sample
 
-        transform = torchaudio.transforms.MelSpectrogram(sample_rate)
-        mel_spectrogram = transform(waveform)
+        mfcc_transform = torchaudio.transforms.MFCC(sample_rate)
+        mfcc_spectrogram = mfcc_transform(waveform)
 
-        return mel_spectrogram, speaker_ID
+        mfcc_spectrogram = self.normalize(mfcc_spectrogram) # normalize column values
+
+
+
+        # waveform, sample_rate = librosa.load(audio_fp, sr=None)
+        # waveform = self.crop_audio(waveform) #take random crop of sample
+
+        # mfcc_spectrogram = librosa.feature.mfcc(y = waveform, sr = sample_rate)
+        # mfcc_spectrogram = sklearn.preprocessing.scale(mfcc_spectrogram) # normalize to zero mean, std 1
+        
+
+        
+
+        
+
+        return mfcc_spectrogram, speaker_ID
