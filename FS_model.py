@@ -57,7 +57,8 @@ class Model(nn.Module):
         self.bn6 = nn.BatchNorm2d(512)
         init.kaiming_normal_(self.conv4.weight, a=0.1)
         self.conv6.bias.data.zero_()
-        layers += [self.conv6, self.max6, self.bn6]
+        layers += [self.conv6, self.bn6]
+        # layers += [self.conv6, self.max6, self.bn6]
 
         # Linear Classifier
         self.ap = nn.AdaptiveAvgPool2d(output_size=1)

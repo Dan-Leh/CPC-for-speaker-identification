@@ -6,11 +6,17 @@ from config import Config
 from data import *
 from FS_model import *
 
+# the following lines of code are for the sake of using the debugger
+if os.path.split(os.getcwd())[-1] != '5aua0-2022-group-18':
+    os.chdir('5aua0-2022-group-18')
+print(os.getcwd())
+
 
 trainset = LibriDataset('train')
+testset = LibriDataset('test')
 cfg = Config()
-DL_train = torch.utils.data.DataLoader(trainset, batch_size=cfg.batch_size_train, shuffle=True)
-DL_val = torch.utils.data.DataLoader(trainset, batch_size=cfg.batch_size_test, shuffle=False)
+DL_train = DataLoader(trainset, batch_size=cfg.batch_size_train, shuffle=True)
+DL_val = DataLoader(testset, batch_size=cfg.batch_size_test, shuffle=False)
 
 def train(model, DL_train):
     # Configuration settings
@@ -33,11 +39,11 @@ def train(model, DL_train):
         total_pred = 0
 
         for i, data in enumerate(DL_train):
-            inputs, labels = data[0].to(device), data[1].to(device)
+            inputs, labels = data[0].to(device), data[1]
 
             optimizer.zero_grad()
-            outputs = model(inputs, labels)
-            loss = criterion(outputs,labels)
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
             # Backprop
             loss.backward()
             # Take a step with the optimizer
@@ -51,6 +57,7 @@ def train(model, DL_train):
 
             correct_pred += (pred == labels).sum().item()
             total_pred += pred.shape[0]
+            print(i)
 
         # Print stats at the end of the epoch
         num_batches = len(DL_train)

@@ -28,7 +28,7 @@ class LibriDataset(Dataset):
             split_name = filename.split('-')
             self.filepath_list[i] += os.path.join(split_name[0], split_name[1], filename+'.flac')
         
-        self.labelID_list = os.listdir(Libri_dir)
+        self.speakerID_list = sorted(np.array(os.listdir(Libri_dir), dtype=np.uint32)) #list of speaker IDs in ascending order
 
     # Returns the length of the dataset
     def __len__(self):
@@ -47,6 +47,12 @@ class LibriDataset(Dataset):
             lengths[idx] = len(waveform[0])
         return lengths
     
+    def get_all_speakers(self):
+        IDs = []
+        for idx in range(self.__len__()):
+            IDs.append(self.filename_list[idx].split('-')[0])
+        return IDs
+    
     def crop_audio(self, waveform):
         waveform = waveform.squeeze() # get rid of channel dimension
         crop_length = 22580 # crop length equivalent to length of smallest sample
@@ -63,7 +69,6 @@ class LibriDataset(Dataset):
         
         return (spectrogram - means) / stds
 
-
     # Returns a dataset sample given an idx [0, len(dataset))
     def __getitem__(self, idx):
         audio_fp = self.filepath_list[idx]
@@ -77,17 +82,13 @@ class LibriDataset(Dataset):
 
         mfcc_spectrogram = self.normalize(mfcc_spectrogram) # normalize column values
 
-
-
         # waveform, sample_rate = librosa.load(audio_fp, sr=None)
         # waveform = self.crop_audio(waveform) #take random crop of sample
 
         # mfcc_spectrogram = librosa.feature.mfcc(y = waveform, sr = sample_rate)
         # mfcc_spectrogram = sklearn.preprocessing.scale(mfcc_spectrogram) # normalize to zero mean, std 1
-        
 
-        
+        label = self.speakerID_list.index(speaker_ID) # get label from speaker_ID
 
-        
+        return mfcc_spectrogram, label
 
-        return mfcc_spectrogram, speaker_ID
