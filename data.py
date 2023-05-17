@@ -72,7 +72,7 @@ class LibriDataset(Dataset):
     # Returns a dataset sample given an idx [0, len(dataset))
     def __getitem__(self, idx):
         audio_fp = self.filepath_list[idx]
-        speaker_ID = self.filename_list[idx].split('-')[0]
+        speaker_ID = int(self.filename_list[idx].split('-')[0])
 
         waveform, sample_rate = torchaudio.load(audio_fp, normalize = True)
         waveform = self.crop_audio(waveform) #take random crop of sample

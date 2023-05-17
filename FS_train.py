@@ -26,7 +26,7 @@ def train(model, DL_train):
                                                 steps_per_epoch=int(len(DL_train)),
                                                 epochs=cfg.epochs,
                                                 anneal_strategy='linear')
-     # Initialize model
+    # Initialize model
     model.train()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
