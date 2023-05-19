@@ -3,6 +3,6 @@ channels:
   - defaults
 dependencies:
   - python=3.10
-  - librosa
+  # - librosa
   - scikit-learn
 prefix: /home/dlehman/.conda/envs/5aua0

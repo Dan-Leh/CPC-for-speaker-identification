@@ -1,10 +1,15 @@
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import argparse
 from torch.utils.data import DataLoader
-from config import Config
-from data import *
-from FS_model import *
+
+from utils.save_functions import save_checkpoint
+from utils.config import Config
+from utils.data import LibriDataset
+from utils.model import Classifier
+
 
 # the following lines of code are for the sake of using the debugger
 if os.path.split(os.getcwd())[-1] != '5aua0-2022-group-18':
@@ -17,6 +22,10 @@ testset = LibriDataset('test')
 cfg = Config()
 DL_train = DataLoader(trainset, batch_size=cfg.batch_size_train, shuffle=True)
 DL_val = DataLoader(testset, batch_size=cfg.batch_size_test, shuffle=False)
+
+save_dir = os.path.join(os.getcwd(), f'trained_models/{cfg.output_name}')
+os.mkdir(save_dir)
+
 
 def train(model, DL_train):
     # Configuration settings
@@ -34,12 +43,13 @@ def train(model, DL_train):
 
     #Training loop
     for epoch in range(cfg.epochs):
+        epoch+=1
         running_loss = 0
         correct_pred = 0
         total_pred = 0
 
         for i, data in enumerate(DL_train):
-            inputs, labels = data[0].to(device), data[1]
+            inputs, labels = data[0].to(device), data[1].to(device)
 
             optimizer.zero_grad()
             outputs = model(inputs)
@@ -57,7 +67,9 @@ def train(model, DL_train):
 
             correct_pred += (pred == labels).sum().item()
             total_pred += pred.shape[0]
-            print(i)
+            
+            if i % cfg.log_iterations==0:
+                print(f'Epoch: {epoch}, Loss: {avg_loss:.2f}, Accuracy: {acc:.2f}')
 
         # Print stats at the end of the epoch
         num_batches = len(DL_train)
@@ -65,12 +77,14 @@ def train(model, DL_train):
         acc = correct_pred/total_pred
         print(f'Epoch: {epoch}, Loss: {avg_loss:.2f}, Accuracy: {acc:.2f}')
 
+        save_checkpoint(save_dir, model, epoch)
+
     print('Finished Training')
     save_path = 'model.pth'
     torch.save(model.state_dict(), save_path)
     print("Saved trained model as {}.".format(save_path))
 
 
-myModel = Model()
+myModel = Classifier()
 if __name__ == "__main__":
   train(myModel, DL_train)
