@@ -1,33 +1,47 @@
 from data import *
 from PIL import Image
 import numpy as np
+import matplotlib.pyplot as plt
 import os
 
 if os.path.split(os.getcwd())[-1] != '5aua0-2022-group-18':
     os.chdir('5aua0-2022-group-18')
 print(os.getcwd())
 
-# trainset = LibriDataset('train')
+
+def plot_histogram(data):
+    plt.hist(data, bins='auto')
+    plt.xlabel('Seconds of Audio')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of audio sample lengths')
+    plt.show()
+    plt.savefig('/home/dlehman/5aua0-2022-group-18/histogram_training_sample_durations.png')
+    print(f"Histogram saved at: '/home/dlehman/5aua0-2022-group-18/histogram_training_sample_durations.png'")
+
+
+trainset = LibriDataset('train')
 testset = LibriDataset('test')
 
 # lengths_train = trainset.get_all_items()
 # lengths_test = testset.get_all_items()
-# print(f'Training set:\naverage length: {np.mean(lengths_train)}\nmin length: {np.min(lengths_train)}\nmax length: {np.max(lengths_train)}')
+
+# lengths_train_seconds = lengths_train/16000
+# plot_histogram(lengths_train_seconds)
+
+# print(f'Training set:\naverage length: {np.mean(lengths_train_seconds)}\nmin length: {np.min(lengths_train_seconds)}\nmax length: {np.max(lengths_train_seconds)}')
 # print(f'Test set:\naverage length: {np.mean(lengths_test)}\nmin length: {np.min(lengths_test)}\nmax length: {np.max(lengths_test)}')
 
-speaker_list = testset.get_all_speakers()
-
-speakers = np.unique(np.array(speaker_list, dtype=np.uint32))
 
 
-hello =1
 
-# label = [0]*10
-# for i in range(10):
-#     img, label[i] = trainset.__getitem__(i)
-#     img = img.numpy().squeeze()*255
-#     img = Image.fromarray(img).convert('L')
-#     img.save('spectrogram'+str(i)+'.png')
+
+
+label = [0]*10
+for i in range(10):
+    img, label[i] = trainset.__getitem__(i)
+    img = img.numpy().squeeze()*255
+    img = Image.fromarray(img).convert('L')
+    img.save('spectrogram'+str(i)+'.png')
 
 # print(label)
 

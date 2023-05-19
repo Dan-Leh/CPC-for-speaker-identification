@@ -55,7 +55,7 @@ class LibriDataset(Dataset):
     
     def crop_audio(self, waveform):
         waveform = waveform.squeeze() # get rid of channel dimension
-        crop_length = 22580 # crop length equivalent to length of smallest sample
+        crop_length = 22560 # crop length equivalent to length of smallest sample
         start_idx = np.random.randint(len(waveform)-crop_length)
         end_idx = start_idx+crop_length
         return waveform[start_idx:end_idx].unsqueeze(0) # cropped_waveform, with channel dimension
@@ -77,7 +77,7 @@ class LibriDataset(Dataset):
         waveform, sample_rate = torchaudio.load(audio_fp, normalize = True)
         waveform = self.crop_audio(waveform) #take random crop of sample
 
-        mfcc_transform = torchaudio.transforms.MFCC(sample_rate)
+        mfcc_transform = torchaudio.transforms.MFCC(sample_rate, n_mfcc=64, melkwargs={"n_fft": 474}) # n_mfcc and n_fft chosen so that images are of resolution 64x96
         mfcc_spectrogram = mfcc_transform(waveform)
 
         mfcc_spectrogram = self.normalize(mfcc_spectrogram) # normalize column values
