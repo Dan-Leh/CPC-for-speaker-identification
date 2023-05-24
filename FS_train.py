@@ -2,14 +2,16 @@ import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import argparse
 from torch.utils.data import DataLoader
+import time
+from datetime import timedelta
 
 from utils.save_functions import save_checkpoint, visualize_losses
 from utils.config import Config
 from utils.data import LibriDataset
 from utils.model import Classifier
 
+start_time = time.time()
 
 # the following lines of code are for the sake of using the debugger
 if os.path.split(os.getcwd())[-1] != '5aua0-2022-group-18':
@@ -52,6 +54,7 @@ def train(model, DL_train):
 
     #Training loop
     for epoch in range(cfg.epochs):
+        start_epoch_time = time.time()
         epoch+=1
         running_loss = 0
         correct_pred = 0
@@ -100,12 +103,10 @@ def train(model, DL_train):
         visualize_losses(save_dir, train_metrics, val_metrics)
         
         save_checkpoint(save_dir, model, epoch)
-        
 
+        print(f'Epoch {epoch} took a total time of {str(timedelta(seconds=(start_epoch_time - time.time())))}')
+        
     print('Finished Training')
-    save_path = 'model.pth'
-    torch.save(model.state_dict(), save_path)
-    print("Saved trained model as {}.".format(save_path))
 
 
 def validation(model, DL_val, device, criterion):
@@ -138,3 +139,4 @@ def validation(model, DL_val, device, criterion):
 myModel = Classifier()
 if __name__ == "__main__":
   train(myModel, DL_train)
+  print(f'Program ran for a total time of {str(timedelta(seconds=(start_time - time.time())))}')

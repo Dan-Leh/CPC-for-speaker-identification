@@ -137,4 +137,7 @@ data/*
 
 
 
+# added by us
+trained_models/*
 *.png
+*.out
