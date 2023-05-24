@@ -5,8 +5,6 @@ import numpy as np
 import torchaudio
 from torch.utils.data import Dataset
 
-
-
 class LibriDataset(Dataset):
     def __init__(self, split='train'):
         assert split in ['train', 'test'], 'Only train and test splits are implemented.'
@@ -55,7 +53,7 @@ class LibriDataset(Dataset):
     def crop_audio(self, waveform):
         waveform = waveform.squeeze() # get rid of channel dimension
         crop_length = 22560 # crop length equivalent to length of smallest sample
-        start_idx = np.random.randint(len(waveform)-crop_length)
+        start_idx = np.random.randint(len(waveform)-crop_length) if len(waveform) > crop_length else 0
         end_idx = start_idx+crop_length
         return waveform[start_idx:end_idx].unsqueeze(0) # cropped_waveform, with channel dimension
     

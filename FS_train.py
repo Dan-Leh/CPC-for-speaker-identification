@@ -5,7 +5,7 @@ import torch.optim as optim
 import argparse
 from torch.utils.data import DataLoader
 
-from utils.save_functions import save_checkpoint
+from utils.save_functions import save_checkpoint, visualize_losses
 from utils.config import Config
 from utils.data import LibriDataset
 from utils.model import Classifier
@@ -14,7 +14,7 @@ from utils.model import Classifier
 # the following lines of code are for the sake of using the debugger
 if os.path.split(os.getcwd())[-1] != '5aua0-2022-group-18':
     os.chdir('5aua0-2022-group-18')
-print(os.getcwd())
+# print(os.getcwd())
 
 
 trainset = LibriDataset('train')
@@ -24,7 +24,12 @@ DL_train = DataLoader(trainset, batch_size=cfg.batch_size_train, shuffle=True)
 DL_val = DataLoader(testset, batch_size=cfg.batch_size_test, shuffle=False)
 
 save_dir = os.path.join(os.getcwd(), f'trained_models/{cfg.output_name}')
-os.mkdir(save_dir)
+if os.path.exists(save_dir):
+    answer = input(f'Directory {save_dir} exists. Overwrite current files in the directory? [yes/no] ')
+    if answer == 'no': 
+        print("Please rename variable 'output_name' in your config file")
+        quit()
+else: os.mkdir(save_dir)
 
 
 def train(model, DL_train):
@@ -38,8 +43,12 @@ def train(model, DL_train):
     # Initialize model
     model.train()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(f'using device {device}')
     model = model.to(device)
-  
+
+    # Initialize empty lists for training metrics
+    train_metrics = {'Epoch': [], 'Loss': [], 'Accuracy': []}
+    val_metrics = {'Epoch': [], 'Loss': [], 'Accuracy': []}
 
     #Training loop
     for epoch in range(cfg.epochs):
@@ -47,8 +56,8 @@ def train(model, DL_train):
         running_loss = 0
         correct_pred = 0
         total_pred = 0
-
         for i, data in enumerate(DL_train):
+            i += 1 # start at iteration 1, not 0
             inputs, labels = data[0].to(device), data[1].to(device)
 
             optimizer.zero_grad()
@@ -69,21 +78,62 @@ def train(model, DL_train):
             total_pred += pred.shape[0]
             
             if i % cfg.log_iterations==0:
-                print(f'Epoch: {epoch}, Loss: {avg_loss:.2f}, Accuracy: {acc:.2f}')
+                acc = correct_pred/total_pred
+                avg_loss = running_loss / i
+                print(f'Epoch: {epoch}, Iter in epoch: {i}, Loss: {avg_loss:.2f}, Accuracy: {acc:.2f}')
 
         # Print stats at the end of the epoch
         num_batches = len(DL_train)
         avg_loss = running_loss / num_batches
-        acc = correct_pred/total_pred
+        acc = correct_pred/total_pred * 100 # as percentage
         print(f'Epoch: {epoch}, Loss: {avg_loss:.2f}, Accuracy: {acc:.2f}')
+        
+        train_metrics['Epoch'].append(epoch)
+        train_metrics['Loss'].append(avg_loss)
+        train_metrics['Accuracy'].append(acc)
 
+        val_loss, val_acc = validation(model, DL_val, device, criterion)
+        val_metrics['Epoch'].append(epoch)
+        val_metrics['Loss'].append(val_loss)
+        val_metrics['Accuracy'].append(val_acc)
+        
+        visualize_losses(save_dir, train_metrics, val_metrics)
+        
         save_checkpoint(save_dir, model, epoch)
+        
 
     print('Finished Training')
     save_path = 'model.pth'
     torch.save(model.state_dict(), save_path)
     print("Saved trained model as {}.".format(save_path))
 
+
+def validation(model, DL_val, device, criterion):
+    running_loss = 0
+    correct_pred = 0
+    total_pred = 0
+    
+    model.eval()
+
+    for data in DL_val:
+        inputs, labels = data[0].to(device), data[1].to(device)
+
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+
+        #Update loss
+        running_loss += loss.item()
+        _, pred = torch.max(outputs,1)
+        correct_pred += (pred == labels).sum().item()
+        total_pred += pred.shape[0]
+
+    loss = running_loss / len(DL_val)
+    acc = correct_pred/total_pred * 100 # as percentage
+
+    model.train() # not sure we need this, best ask supervisor
+
+    return loss, acc
+    
 
 myModel = Classifier()
 if __name__ == "__main__":
