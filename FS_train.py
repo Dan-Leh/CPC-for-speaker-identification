@@ -104,7 +104,7 @@ def train(model, DL_train):
         
         save_checkpoint(save_dir, model, epoch)
 
-        print(f'Epoch {epoch} took a total time of {str(timedelta(seconds=(start_epoch_time - time.time())))}')
+        print(f'Epoch {epoch} took a total time of {str(timedelta(seconds=(time.time() - start_time)))}')
         
     print('Finished Training')
 
@@ -139,4 +139,4 @@ def validation(model, DL_val, device, criterion):
 myModel = Classifier()
 if __name__ == "__main__":
   train(myModel, DL_train)
-  print(f'Program ran for a total time of {str(timedelta(seconds=(start_time - time.time())))}')
+  print(f'Program ran for a total time of {str(timedelta(seconds=(time.time() - start_time)))}')
