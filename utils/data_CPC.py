@@ -17,6 +17,10 @@ class LibriDataset(Dataset):
         txt_file_split = os.path.join(data_dir, split+'_split.txt') # path to txt file containing train/test sample names
         with open(txt_file_split) as fp: # extracting sample names from txt file
             self.filename_list = fp.read().splitlines() 
+            
+        txt_sample_lengths = os.path.join(data_dir, split+'_sample_lengths.txt') # path to txt file containing train/test sample lengths
+        with open(txt_sample_lengths) as fp: # extracting sample lengths from txt file
+            self.sample_lengths = fp.read().splitlines() 
 
         self.num_samples = len(self.filename_list)
         
@@ -35,14 +39,13 @@ class LibriDataset(Dataset):
         for path in self.filepath_list:
             if not os.path.isfile(path): print(f'not a file: {path}')
 
-    def get_all_items(self):
-        lengths = np.zeros(self.__len__())
-        for idx in range(self.__len__()):
-            audio_fp = self.filepath_list[idx]
-            waveform, sample_rate = torchaudio.load(audio_fp, normalize=True)
-            # waveform = self.crop_audio(waveform)
-            lengths[idx] = len(waveform[0])
-        return lengths
+    def get_all_items(self, save_path):
+        with open(save_path, 'w') as file:
+            for idx in range(self.__len__()):
+                audio_fp = self.filepath_list[idx]
+                waveform, _ = torchaudio.load(audio_fp, normalize=True)
+                # Write each element from the list to a new line
+                file.write(str(len(waveform[0])) + '\n')
     
     def get_all_speakers(self):
         IDs = []
@@ -50,12 +53,10 @@ class LibriDataset(Dataset):
             IDs.append(self.filename_list[idx].split('-')[0])
         return IDs
     
-    def __delete_small_items__(self):
-        lengths = self.get_all_items()
-        for idx in range(self.__len__()).__reversed__():
-            if lengths[idx] < self.patch_size*(self.n_predictions+1):
-                del self.filepath_list[idx]
-                del self.filename_list[idx]
+    def delete_small_items(self):
+        mask = self.sample_lengthslengths < self.patch_size*(self.n_predictions+1)
+        self.filepath_list = self.filepath_list[mask]
+        self.filename_list = self.filename_list[mask]
         return self
 
     def crop_audio(self, waveform):

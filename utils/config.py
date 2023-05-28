@@ -19,3 +19,4 @@ class Config:
     if CPC:
         patch_size = 1.28
         n_predictions = 5
+        n_negatives = 10

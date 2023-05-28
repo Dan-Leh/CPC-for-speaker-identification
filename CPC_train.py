@@ -8,7 +8,7 @@ from datetime import timedelta
 
 from utils.save_functions import save_checkpoint, visualize_losses
 from utils.config import Config
-from utils.data_CPC import LibriDataset
+from utils.data import LibriDataset
 from utils.model import CPC_model
 from utils.infoNCE import InfoNCELoss
 

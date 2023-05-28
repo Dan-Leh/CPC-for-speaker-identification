@@ -19,9 +19,12 @@ def plot_histogram(data):
     print(f"Histogram saved at: '/home/dlehman/5aua0-2022-group-18/histogram_training_sample_durations.png'")
 
 trainset = LibriDataset('train')
-trainset = trainset.__delete_small_items__()
-testset = LibriDataset('test')
-testset = testset.__delete_small_items__()
+lengths = trainset.get_all_items('./data/train_sample_lengths.txt')
+trainset = LibriDataset('test')
+lengths = trainset.get_all_items('./data/test_sample_lengths.txt')
+
+# testset = LibriDataset('test')
+
 
 
 
@@ -39,12 +42,12 @@ testset = testset.__delete_small_items__()
 
 
 
-label = [0]*10
-for i in range(10):
-    in_patch, future_patches = trainset.__getitem__(i)
-    in_patch = in_patch.numpy().squeeze()*255
-    in_patch = Image.fromarray(in_patch).convert('L')
-    in_patch.save('spectrogram'+str(i)+'.png')
+# label = [0]*10
+# for i in range(10):
+#     in_patch, future_patches = trainset.__getitem__(i)
+#     in_patch = in_patch.numpy().squeeze()*255
+#     in_patch = Image.fromarray(in_patch).convert('L')
+#     in_patch.save('spectrogram'+str(i)+'.png')
 
 # print(label)
 

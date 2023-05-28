@@ -1,35 +1,8 @@
 Calling python file
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
-/home/tue/20191313/miniconda3/envs/5LSM0/lib/python3.10/site-packages/torchaudio/functional/functional.py:539: UserWarning: At least one mel filterbank has all zero values. The value for `n_mels` (128) may be set too high. Or, the value for `n_freqs` (238) may be set too low.
-  warnings.warn(
+/home/tue/20191313/5aua0-2022-group-18
+Traceback (most recent call last):
+  File "/home/tue/20191313/5aua0-2022-group-18/data_test_CPC.py", line 23, in <module>
+    trainset = LibriDataset('test')
+  File "/home/tue/20191313/5aua0-2022-group-18/utils/data_CPC.py", line 22, in __init__
+    with open(txt_sample_lengths) as fp: # extracting sample lengths from txt file
+FileNotFoundError: [Errno 2] No such file or directory: './data/test_sample_lengths.txt'

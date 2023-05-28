@@ -132,7 +132,7 @@ dmypy.json
 
 # Ignore data directory
 data/cifar-10-batches-py
-data/*
+data/LibriSpeech/*
 !data/README.md
 
 
