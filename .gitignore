@@ -134,3 +134,10 @@ dmypy.json
 data/cifar-10-batches-py
 data/*
 !data/README.md
+
+
+
+# added by us
+trained_models/*
+*.png
+*.out

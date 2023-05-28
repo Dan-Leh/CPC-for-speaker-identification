@@ -3,6 +3,6 @@ channels:
   - defaults
 dependencies:
   - python=3.10
-  - pytorch
-  - torchvision
-prefix: /Users/twanleloup/opt/anaconda3/envs/5aua0
+  # - librosa
+  - scikit-learn
+prefix: /home/dlehman/.conda/envs/5aua0
