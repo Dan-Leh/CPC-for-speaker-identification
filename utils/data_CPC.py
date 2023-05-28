@@ -52,7 +52,7 @@ class LibriDataset(Dataset):
     
     def __delete_small_items__(self):
         lengths = self.get_all_items()
-        for idx in range(self.__len__()):
+        for idx in range(self.__len__()).__reversed__():
             if lengths[idx] < self.patch_size*(self.n_predictions+1):
                 del self.filepath_list[idx]
                 del self.filename_list[idx]

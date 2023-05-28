@@ -15,5 +15,5 @@ class Config:
     adam1 = 0.9
     adam2 = 0.999
     epochs = 20
-    patch_size = 0.1
+    patch_size = 1.28
     n_predictions = 5
