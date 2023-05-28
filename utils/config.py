@@ -17,5 +17,5 @@ class Config:
     epochs = 20
     CPC = True
     if CPC:
-        patch_size = 1.4
+        patch_size = 1.28
         n_predictions = 5
