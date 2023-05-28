@@ -86,7 +86,7 @@ class LibriDataset(Dataset):
         waveform, sample_rate = torchaudio.load(audio_fp, normalize = True)
         waveform = self.crop_audio(waveform) #take random crop of sample
         patches = self.split_patches(waveform) # split into patches
-        mfcc_transform = torchaudio.transforms.MFCC(sample_rate, n_mfcc=64, melkwargs={"n_fft": 474}) # n_mfcc and n_fft chosen so that images are of resolution 64x96
+        mfcc_transform = torchaudio.transforms.MFCC(sample_rate, n_mfcc=64, melkwargs={"n_fft": 429}) # n_mfcc and n_fft chosen so that images are of resolution 64x96
         mfcc_spectrograms = map(lambda patch: mfcc_transform(patch), patches) # apply mfcc transform to each patch
         mfcc_spectrograms = map(lambda patch: self.normalize(patch), mfcc_spectrograms) #  normalize each patch
         mfcc_spectrograms = list(mfcc_spectrograms) # convert map object to list
