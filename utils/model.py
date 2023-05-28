@@ -2,9 +2,11 @@ import torch.nn.functional as F
 import torch.nn as nn
 from torch.nn import init
 
+from utils.config import Config
+
+cfg = Config()
 
 # Architecture based on https://towardsdatascience.com/audio-deep-learning-made-simple-sound-classification-step-by-step-cebc936bbe5 # 
-
 
 class Classifier(nn.Module):
     def __init__(self):
@@ -84,3 +86,49 @@ class ConvEncoder(nn.Module):
     def forward(self, x):
         x = self.conv(x)
         return x
+    
+    
+class LatentPredictor(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.in_features = 512
+        self.out_features = self.in_features
+        self.FC = nn.Linear(in_features=self.in_features, 
+                            out_features=self.out_features, 
+                            bias = False)
+
+    def forward(self, x):
+        x = self.FC(x)
+        return x
+    
+    
+class CPC_model(nn.Module):
+    def __init__(self, n_predictions=cfg.n_predictions):
+        super().__init__()
+        
+        self.n_predictions = n_predictions
+        self.latentpredictors = [LatentPredictor() for _ in range(n_predictions)]
+        self.encoder = ConvEncoder()
+        
+        
+    def forward(self, x, generate_predictions):
+        x = self.encoder(x)
+        
+        # flatten 
+        x = x.view(x.shape[0], -1)
+        
+        if generate_predictions == True:
+            # make multiple predictions and output them in dict
+            output = {}
+            output["k"] = x
+            for i in range(self.n_predictions):
+                output["k+"+str(i+1)] = self.latentpredictors[i](x)
+        else:
+            output = x
+        
+        return output
+        
+                    
+        
+        
+        

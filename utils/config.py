@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Config:
-    output_name = 'savetest_csv'
+    output_name = 'trial_for_debug'
     batch_size_train = 32
     batch_size_test = 32
     lr = 0.001
@@ -15,5 +15,7 @@ class Config:
     adam1 = 0.9
     adam2 = 0.999
     epochs = 20
-    patch_size = 0.1
-    n_predictions = 5
+    CPC = True
+    if CPC:
+        patch_size = 1.4
+        n_predictions = 5
