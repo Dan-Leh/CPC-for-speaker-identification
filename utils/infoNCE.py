@@ -7,10 +7,11 @@ from utils.config import Config
 cfg = Config()
 
 class InfoNCELoss(nn.Module):
-    def __init__(self):
+    def __init__(self, device):
         super().__init__()
         self.keys_no_k = ["k+"+str(i+1) for i in range(cfg.n_predictions)]
         self.keys = self.keys_no_k + ['k']
+        self.device = device
         
 
     def forward(self, latent_predictions, positive_samples):
@@ -27,9 +28,9 @@ class InfoNCELoss(nn.Module):
         
         for future_step, k in enumerate(self.keys_no_k):
 
-            negative_samples[k] = torch.zeros((cfg.batch_size_train, cfg.n_negatives, 512)) # initialize empty tensor
+            negative_samples[k] = torch.zeros((cfg.batch_size_train, cfg.n_negatives, 512)).to(self.device) # initialize empty tensor
             for batch_idx in range(cfg.batch_size_train): 
-                negatives = torch.Tensor([])
+                negatives = torch.Tensor([]).to(self.device)
                 
                 for _ in range(cfg.n_negatives):
                     # choose random time index 'k' to 'k+n_predictions'
@@ -52,8 +53,8 @@ class InfoNCELoss(nn.Module):
             
             loss += 1/(cfg.n_negatives+1) * torch.log(fk_positives/(fk_positives+torch.sum(fk_negatives, dim=-1)))
             
-            np_fk_positives = fk_positives.detach().numpy()
-            np_fk_negatives = fk_negatives.detach().numpy()
+            np_fk_positives = fk_positives.detach().cpu().numpy()
+            np_fk_negatives = fk_negatives.detach().cpu().numpy()
             
             for batch_idx in range(cfg.batch_size_train): 
                 correct_predictions[future_step] += all(np_fk_positives[batch_idx] > np_fk_negatives[batch_idx])

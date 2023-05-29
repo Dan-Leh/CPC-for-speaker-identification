@@ -26,18 +26,20 @@ testset = LibriDataset('test')
 DL_train = DataLoader(trainset, batch_size=cfg.batch_size_train, shuffle=True)
 DL_val = DataLoader(testset, batch_size=cfg.batch_size_test, shuffle=False)
 
-save_dir = os.path.join(os.getcwd(), f'trained_models/{cfg.output_name}')
-if os.path.exists(save_dir):
-    answer = input(f'Directory {save_dir} exists. Overwrite current files in the directory? [yes/no] ')
-    if answer == 'no': 
-        print("Please rename variable 'output_name' in your config file")
-        quit()
-else: os.mkdir(save_dir)
+def make_save_dir():
+    save_dir = os.path.join(os.getcwd(), f'trained_models/{cfg.output_name}')
+    if os.path.exists(save_dir):
+        answer = input(f'Directory {save_dir} exists. Overwrite current files in the directory? [yes/no] ')
+        if answer == 'no': 
+            print("Please rename variable 'output_name' in your config file")
+            quit()
+    else: os.mkdir(save_dir)
+    return save_dir
 
 
 def train(model, DL_train):
     # Configuration settings
-    criterion = InfoNCELoss()
+    criterion = InfoNCELoss(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg.lr)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=cfg.max_lr,
                                                 steps_per_epoch=int(len(DL_train)),
@@ -45,7 +47,6 @@ def train(model, DL_train):
                                                 anneal_strategy='linear')
     # Initialize model
     model.train()
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f'using device {device}')
     model = model.to(device)
 
@@ -108,8 +109,8 @@ def train(model, DL_train):
         val_metrics['Loss'].append(val_loss)
         val_metrics['Accuracy'].append(val_acc)
         
+        if epoch ==1: save_dir = make_save_dir()
         visualize_losses(save_dir, train_metrics, val_metrics)
-        
         save_checkpoint(save_dir, model, epoch)
 
         print(f'Epoch {epoch} took a total time of {str(timedelta(seconds=(time.time() - start_time)))}')
@@ -124,17 +125,25 @@ def validation(model, DL_val, device, criterion):
     
     model.eval()
 
-    for data in DL_val:
-        inputs, labels = data[0].to(device), data[1].to(device)
-
-        outputs = model(inputs)
-        loss = criterion(outputs, labels)
+    for data in DL_train:
+        current_input = data[0].to(device)
+        future_inputs = data[1:]
+        
+        # pass input through encoder and get predictions of future latent representations as dict:
+        latent_predictions = model(current_input, generate_predictions=True)
+        
+        # get the positive samples
+        positive_samples = {}
+        for future_step, future_input in enumerate(future_inputs):
+            future_input = future_input.to(device)
+            positive_samples["k+"+str(future_step+1)] = model(future_input, generate_predictions=False) 
+        
+        loss, correct_pred_batch = criterion(latent_predictions, positive_samples)
 
         #Update loss
         running_loss += loss.item()
-        _, pred = torch.max(outputs,1)
-        correct_pred += (pred == labels).sum().item()
-        total_pred += pred.shape[0]
+        correct_pred += correct_pred_batch
+        total_pred += current_input.shape[0]
 
     loss = running_loss / len(DL_val)
     acc = correct_pred/total_pred * 100 # as percentage
@@ -143,8 +152,8 @@ def validation(model, DL_val, device, criterion):
 
     return loss, acc
     
-
-myModel = CPC_model()
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+myModel = CPC_model(device)
     
 if __name__ == "__main__":
   train(myModel, DL_train)

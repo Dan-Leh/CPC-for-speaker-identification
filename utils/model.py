@@ -103,11 +103,11 @@ class LatentPredictor(nn.Module):
     
     
 class CPC_model(nn.Module):
-    def __init__(self, n_predictions=cfg.n_predictions):
+    def __init__(self, device, n_predictions=cfg.n_predictions):
         super().__init__()
         
         self.n_predictions = n_predictions
-        self.latentpredictors = [LatentPredictor() for _ in range(n_predictions)]
+        self.latentpredictors = [LatentPredictor().to(device) for _ in range(n_predictions)]
         self.encoder = ConvEncoder()
         
         
