@@ -23,8 +23,8 @@ if os.path.split(os.getcwd())[-1] != '5aua0-2022-group-18':
 cfg = Config()
 trainset = LibriDataset('train')
 testset = LibriDataset('test')
-DL_train = DataLoader(trainset, batch_size=cfg.batch_size_train, shuffle=True)
-DL_val = DataLoader(testset, batch_size=cfg.batch_size_test, shuffle=False)
+DL_train = DataLoader(trainset, batch_size=cfg.batch_size_train, shuffle=True, drop_last=True)
+DL_val = DataLoader(testset, batch_size=cfg.batch_size_test, shuffle=False, drop_last=True)
 
 def make_save_dir():
     save_dir = os.path.join(os.getcwd(), f'trained_models/{cfg.output_name}')
