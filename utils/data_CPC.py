@@ -21,15 +21,16 @@ class LibriDataset(Dataset):
         txt_sample_lengths = os.path.join(data_dir, split+'_sample_lengths.txt') # path to txt file containing train/test sample lengths
         with open(txt_sample_lengths) as fp: # extracting sample lengths from txt file
             self.sample_lengths = fp.read().splitlines() 
-
-        self.num_samples = len(self.filename_list)
         
         Libri_dir = os.path.join(data_dir, 'LibriSpeech', 'train-clean-100/')
         # creating list of filepaths from filenames
-        self.filepath_list = [Libri_dir] * self.num_samples
+        self.filepath_list = [Libri_dir] * len(self.filename_list)
         for i, filename in enumerate(self.filename_list):
             split_name = filename.split('-')
             self.filepath_list[i] += os.path.join(split_name[0], split_name[1], filename+'.flac')
+            
+        self.delete_small_items() # only use data that is long to make enough future predictions
+        self.num_samples = len(self.filename_list)
 
     # Returns the length of the dataset
     def __len__(self):
@@ -54,9 +55,9 @@ class LibriDataset(Dataset):
         return IDs
     
     def delete_small_items(self):
-        mask = self.sample_lengthslengths < self.patch_size*(self.n_predictions+1)
-        self.filepath_list = self.filepath_list[mask]
-        self.filename_list = self.filename_list[mask]
+        mask = np.array(self.sample_lengths, dtype=np.int32) > self.patch_size*(self.n_predictions+1)
+        self.filepath_list = np.array(self.filepath_list)[mask]
+        self.filename_list = np.array(self.filename_list)[mask]
         return self
 
     def crop_audio(self, waveform):
@@ -92,5 +93,4 @@ class LibriDataset(Dataset):
         mfcc_spectrograms = map(lambda patch: self.normalize(patch), mfcc_spectrograms) #  normalize each patch
         mfcc_spectrograms = list(mfcc_spectrograms) # convert map object to list
 
-
-        return mfcc_spectrograms[0], mfcc_spectrograms[1:] # return first patch and list of remaining patches as target
+        return mfcc_spectrograms # return first patch and list of remaining patches as target

@@ -1,14 +1,15 @@
 import os
+import time
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-import time
 from datetime import timedelta
 
 from utils.save_functions import save_checkpoint, visualize_losses
 from utils.config import Config
-from utils.data import LibriDataset
+from utils.data_CPC import LibriDataset
 from utils.model import CPC_model
 from utils.infoNCE import InfoNCELoss
 
@@ -37,8 +38,8 @@ else: os.mkdir(save_dir)
 def train(model, DL_train):
     # Configuration settings
     criterion = InfoNCELoss()
-    optimizer_encoder = torch.optim.Adam(model.parameters(), lr=cfg.lr)
-    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer_encoder, max_lr=cfg.max_lr,
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.lr)
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=cfg.max_lr,
                                                 steps_per_epoch=int(len(DL_train)),
                                                 epochs=cfg.epochs,
                                                 anneal_strategy='linear')
@@ -61,19 +62,19 @@ def train(model, DL_train):
         total_pred = 0
         for i, data in enumerate(DL_train):
             i += 1 # start at iteration 1, not 0
-            current_input, future_input = data[0].to(device), data[1]
+            current_input = data[0].to(device)
+            future_inputs = data[1:]
             
             # pass input through encoder and get predictions of future latent representations as dict:
             latent_predictions = model(current_input, generate_predictions=True)
             
             # get the positive samples
             positive_samples = {}
-            for future_step in range(cfg.n_predictions):
-                future_input = future_input[future_step].to(device)
-                positive_samples["k+"+str(future_step+1)] = model(input, generate_predictions=False) 
+            for future_step, future_input in enumerate(future_inputs):
+                future_input = future_input.to(device)
+                positive_samples["k+"+str(future_step+1)] = model(future_input, generate_predictions=False) 
             
-            break
-            criterion(latent_predictions, positive_samples)
+            loss, correct_pred_batch = criterion(latent_predictions, positive_samples)
             
             # Backprop
             loss.backward()
@@ -84,15 +85,13 @@ def train(model, DL_train):
 
             #Update loss
             running_loss += loss.item()
-            _, pred = torch.max(outputs,1)
-
-            correct_pred += (pred == labels).sum().item()
-            total_pred += pred.shape[0]
+            correct_pred += correct_pred_batch
+            total_pred += current_input.shape[0]
             
             if i % cfg.log_iterations==0:
-                acc = correct_pred/total_pred
+                acc = np.mean(correct_pred/total_pred)
                 avg_loss = running_loss / i
-                print(f'Epoch: {epoch}, Iter in epoch: {i}, Loss: {avg_loss:.2f}, Accuracy: {acc:.2f}')
+                print(f'Epoch: {epoch}, Iter in epoch: {i}, Loss: {avg_loss:.2f}, Accuracies: {acc:.2f}')
 
         # Print stats at the end of the epoch
         num_batches = len(DL_train)
