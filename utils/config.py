@@ -3,11 +3,11 @@ from dataclasses import dataclass
 
 @dataclass
 class Config:
-    output_name = 'First_CPC'
-    batch_size_train = 32
-    batch_size_test = 32
-    lr = 0.001
-    max_lr = 0.01
+    output_name = 'CPC_much_lower_lr'
+    batch_size_train = 64
+    batch_size_test = 64
+    lr = 0.00001
+    max_lr = 0.0001
     num_classes = 251
     gt_dir = "./data/LibriSpeech/"
     log_iterations = 100

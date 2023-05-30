@@ -40,7 +40,7 @@ def make_save_dir():
 def train(model, DL_train):
     # Configuration settings
     criterion = InfoNCELoss(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.lr, weight_decay=1e-5)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=cfg.max_lr,
                                                 steps_per_epoch=int(len(DL_train)),
                                                 epochs=cfg.epochs,
@@ -88,16 +88,16 @@ def train(model, DL_train):
             running_loss += loss.item()
             correct_pred += correct_pred_batch
             total_pred += current_input.shape[0]
-            
+
             if i % cfg.log_iterations==0:
-                acc = np.mean(correct_pred/total_pred)
+                acc = np.mean(correct_pred/total_pred) * 100 # as percentage
                 avg_loss = running_loss / i
                 print(f'Epoch: {epoch}, Iter in epoch: {i}, Loss: {avg_loss:.2f}, Accuracies: {acc:.2f}')
 
         # Print stats at the end of the epoch
         num_batches = len(DL_train)
         avg_loss = running_loss / num_batches
-        acc = correct_pred/total_pred * 100 # as percentage
+        acc = np.mean(correct_pred/total_pred) * 100 # as percentage
         print(f'Epoch: {epoch}, Loss: {avg_loss:.2f}, Accuracy: {acc:.2f}')
         
         train_metrics['Epoch'].append(epoch)
@@ -113,7 +113,7 @@ def train(model, DL_train):
         visualize_losses(save_dir, train_metrics, val_metrics)
         save_checkpoint(save_dir, model, epoch)
 
-        print(f'Epoch {epoch} took a total time of {str(timedelta(seconds=(time.time() - start_time)))}')
+        print(f'Epoch {epoch} took a total time of {str(timedelta(seconds=(time.time() - start_epoch_time)))}')
         
     print('Finished Training')
 
@@ -125,7 +125,7 @@ def validation(model, DL_val, device, criterion):
     
     model.eval()
 
-    for data in DL_train:
+    for i, data in enumerate(DL_train):
         current_input = data[0].to(device)
         future_inputs = data[1:]
         
@@ -144,9 +144,9 @@ def validation(model, DL_val, device, criterion):
         running_loss += loss.item()
         correct_pred += correct_pred_batch
         total_pred += current_input.shape[0]
-
+        
     loss = running_loss / len(DL_val)
-    acc = correct_pred/total_pred * 100 # as percentage
+    acc = np.mean(correct_pred/total_pred) * 100 # as percentage
 
     model.train() # not sure we need this, best ask supervisor
 

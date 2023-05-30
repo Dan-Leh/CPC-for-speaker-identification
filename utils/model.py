@@ -123,8 +123,12 @@ class CPC_model(nn.Module):
             output["k"] = x
             for i in range(self.n_predictions):
                 output["k+"+str(i+1)] = self.latentpredictors[i](x)
+                if output["k+"+str(i+1)].isnan().any():
+                    print('nan detected')
         else:
             output = x
+            if output.isnan().any():
+                print('nan detected')
         
         return output
         

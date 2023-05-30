@@ -61,6 +61,10 @@ class InfoNCELoss(nn.Module):
         
         loss /= cfg.n_predictions # average the number of predictions
         
-        loss = torch.sum(loss)/cfg.batch_size_train # average loss across batch
-                
+        loss = -torch.sum(loss)/cfg.batch_size_train # average loss across batch
+        
+        import math
+        if math.isnan(loss.item()):
+            breakpoint = True
+             
         return loss, correct_predictions
