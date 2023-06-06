@@ -8,10 +8,11 @@ from utils.config import Config
 cfg = Config()
 
 class LibriDataset(Dataset):
-    def __init__(self, split='train', patch_size = cfg.patch_size, n_predictions = cfg.n_predictions):
+    def __init__(self, split='train', patch_size = cfg.patch_size, n_predictions = cfg.n_predictions, n_ARmemory = cfg.n_ARmemory):
         assert split in ['train', 'test'], 'Only train and test splits are implemented.'
         self.patch_size = int(np.rint(patch_size*16000))
         self.n_predictions = n_predictions
+        self.n_ARmemory = n_ARmemory
         data_dir = './data' # root directory for data
 
         txt_file_split = os.path.join(data_dir, split+'_split.txt') # path to txt file containing train/test sample names
@@ -55,21 +56,21 @@ class LibriDataset(Dataset):
         return IDs
     
     def delete_small_items(self):
-        mask = np.array(self.sample_lengths, dtype=np.int32) > self.patch_size*(self.n_predictions+1)
+        mask = np.array(self.sample_lengths, dtype=np.int32) > self.patch_size*(self.n_predictions+self.n_ARmemory+1)
         self.filepath_list = np.array(self.filepath_list)[mask]
         self.filename_list = np.array(self.filename_list)[mask]
         return self
 
     def crop_audio(self, waveform):
         waveform = waveform.squeeze() # get rid of channel dimension
-        viable_start = len(waveform) - self.patch_size*(self.n_predictions+1)
+        viable_start = len(waveform) - self.patch_size*(self.n_ARmemory+self.n_predictions+1)
         start_idx = np.random.randint(viable_start) if viable_start > 0 else 0
         end_idx = start_idx+self.patch_size*(self.n_predictions+1)
         return waveform[start_idx:end_idx].unsqueeze(0) # cropped_waveform, with channel dimension
     
     def split_patches(self, waveform):
         patches = []
-        for i in range(self.n_predictions+1):
+        for i in range(self.n_ARmemory + self.n_predictions + 1):
             patches.append(waveform[:, i*self.patch_size:(i+1)*self.patch_size])
         return patches
     
@@ -93,4 +94,5 @@ class LibriDataset(Dataset):
         mfcc_spectrograms = map(lambda patch: self.normalize(patch), mfcc_spectrograms) #  normalize each patch
         mfcc_spectrograms = list(mfcc_spectrograms) # convert map object to list
 
-        return mfcc_spectrograms # return first patch and list of remaining patches as target
+        return mfcc_spectrograms #return list of patches with n_ARmemory + 1 patches as input and n_predictions patches as target
+    

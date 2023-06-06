@@ -63,11 +63,12 @@ def train(model, DL_train):
         total_pred = 0
         for i, data in enumerate(DL_train):
             i += 1 # start at iteration 1, not 0
-            current_input = data[0].to(device)
-            future_inputs = data[1:]
+            memory_inputs = data[0:cfg.n_ARmemory-1].to(device)
+            current_input = data[cfg.n_ARmemory].to(device)
+            future_inputs = data[cfg.n_ARmemory+1:]
             
             # pass input through encoder and get predictions of future latent representations as dict:
-            latent_predictions = model(current_input, generate_predictions=True)
+            latent_predictions = model(memory_inputs, current_input, generate_predictions=True)
             
             # get the positive samples
             positive_samples = {}

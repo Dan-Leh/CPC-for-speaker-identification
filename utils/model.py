@@ -1,5 +1,6 @@
 import torch.nn.functional as F
 import torch.nn as nn
+import torch
 from torch.nn import init
 
 from utils.config import Config
@@ -101,7 +102,26 @@ class LatentPredictor(nn.Module):
         x = self.FC(x)
         return x
     
+class CPCAR(nn.Module):
+    def __init__(self, GRU_layers=cfg.GRU_layers, drop_prop = cfg.GRU_dropout):
+        super().__init__()
+        self.n_layers = cfg.GRU_layers
+        self.encoder = ConvEncoder()
+        self.gru = nn.GRU(input_size=512, hidden_size=512, num_layers=GRU_layers, batch_first=True, dropout=drop_prop)
+        self.fc = nn.Linear(in_features=512, out_features=512)
+        self.relu = nn.ReLU()
+        
+    def forward(self, x_prev, x):
+        x = self.encoder(x)
+        h_prev = torch.zeros(1, 512)
+        for _ in range(cfg.n_ARmemory):
+            x_prev[_] = self.encoder(x_prev[_])
+            x_out, h_prev = self.gru(x_prev[_], h_prev)
+        x, h = self.gru(x, h_prev)
+        x = self.fc(self.relu(x))
+        return x, h
     
+
 class CPC_model(nn.Module):
     def __init__(self, device, n_predictions=cfg.n_predictions):
         super().__init__()
@@ -109,10 +129,10 @@ class CPC_model(nn.Module):
         self.n_predictions = n_predictions
         self.latentpredictors = [LatentPredictor().to(device) for _ in range(n_predictions)]
         self.encoder = ConvEncoder()
+        self.ARmodel = CPCAR()
         
-        
-    def forward(self, x, generate_predictions):
-        x = self.encoder(x)
+    def forward(self, x_prev, x, generate_predictions):
+        x, h = self.ARmodel(x_prev, x)
         
         # flatten 
         x = x.view(x.shape[0], -1)
@@ -131,8 +151,4 @@ class CPC_model(nn.Module):
                 print('nan detected')
         
         return output
-        
-                    
-        
-        
         

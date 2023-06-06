@@ -18,5 +18,8 @@ class Config:
     CPC = True
     if CPC:
         patch_size = 1.28
-        n_predictions = 5
+        n_predictions = 2
         n_negatives = 10
+        GRU_layers = 3
+        GRU_dropout = 0.5
+        n_ARmemory = 3
