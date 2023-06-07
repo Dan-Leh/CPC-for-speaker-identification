@@ -103,22 +103,24 @@ class LatentPredictor(nn.Module):
         return x
     
 class CPCAR(nn.Module):
-    def __init__(self, GRU_layers=cfg.GRU_layers, drop_prop = cfg.GRU_dropout):
+    def __init__(self, device, GRU_layers=cfg.GRU_layers, drop_prop=cfg.GRU_dropout):
         super().__init__()
+        self.device = device
         self.n_layers = cfg.GRU_layers
         self.encoder = ConvEncoder()
-        self.gru = nn.GRU(input_size=512, hidden_size=512, num_layers=GRU_layers, batch_first=True, dropout=drop_prop)
+        self.gru = nn.GRU(input_size=512, hidden_size=256, num_layers=GRU_layers, batch_first=True, dropout=drop_prop)
         self.fc = nn.Linear(in_features=512, out_features=512)
         self.relu = nn.ReLU()
         
     def forward(self, x_prev, x):
-        x = self.encoder(x)
-        h_prev = torch.zeros(1, 512)
-        for _ in range(cfg.n_ARmemory):
-            x_prev[_] = self.encoder(x_prev[_])
-            x_out, h_prev = self.gru(x_prev[_], h_prev)
+        h_prev = torch.zeros(1, 256)
+        for i in range(cfg.n_ARmemory):
+            x_prev[i].to(self.device)
+            x_prev[i] = self.encoder(x_prev[i])
+            x_prev[i] = x.view(x.shape[0], -1) # flatten 
+            _, h_prev = self.gru(x_prev[i], h_prev)
         x, h = self.gru(x, h_prev)
-        x = self.fc(self.relu(x))
+        x = self.fc(self.relu(x)) # not sure if this is needed or if this is how we should put ReLU
         return x, h
     
 
@@ -129,15 +131,12 @@ class CPC_model(nn.Module):
         self.n_predictions = n_predictions
         self.latentpredictors = [LatentPredictor().to(device) for _ in range(n_predictions)]
         self.encoder = ConvEncoder()
-        self.ARmodel = CPCAR()
+        self.ARmodel = CPCAR(device)
         
-    def forward(self, x_prev, x, generate_predictions):
-        x, h = self.ARmodel(x_prev, x)
-        
-        # flatten 
-        x = x.view(x.shape[0], -1)
+    def forward(self, x_prevs, x, generate_predictions):
         
         if generate_predictions == True:
+            x, _ = self.ARmodel(x_prevs, x)
             # make multiple predictions and output them in dict
             output = {}
             output["k"] = x
@@ -145,10 +144,10 @@ class CPC_model(nn.Module):
                 output["k+"+str(i+1)] = self.latentpredictors[i](x)
                 if output["k+"+str(i+1)].isnan().any():
                     print('nan detected')
-        else:
-            output = x
-            if output.isnan().any():
-                print('nan detected')
+
+        else: # generate prediction on positive samples
+            x = self.encoder(x)
+            output = x.view(x.shape[0], -1) # flatten 
         
         return output
         

@@ -63,9 +63,10 @@ class LibriDataset(Dataset):
 
     def crop_audio(self, waveform):
         waveform = waveform.squeeze() # get rid of channel dimension
-        viable_start = len(waveform) - self.patch_size*(self.n_ARmemory+self.n_predictions+1)
+        crop_length = self.patch_size*(self.n_ARmemory+self.n_predictions+1)
+        viable_start = len(waveform) - self.patch_size*(crop_length)
         start_idx = np.random.randint(viable_start) if viable_start > 0 else 0
-        end_idx = start_idx+self.patch_size*(self.n_predictions+1)
+        end_idx = start_idx+self.patch_size*(crop_length)
         return waveform[start_idx:end_idx].unsqueeze(0) # cropped_waveform, with channel dimension
     
     def split_patches(self, waveform):

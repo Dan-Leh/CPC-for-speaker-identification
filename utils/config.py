@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Config:
-    output_name = 'CPC_much_lower_lr'
+    output_name = 'Test_AR'
     batch_size_train = 64
     batch_size_test = 64
     lr = 0.00001
