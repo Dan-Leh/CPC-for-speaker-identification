@@ -108,17 +108,17 @@ class CPCAR(nn.Module):
         self.device = device
         self.n_layers = cfg.GRU_layers
         self.encoder = ConvEncoder()
-        self.gru = nn.GRU(input_size=512, hidden_size=256, num_layers=GRU_layers, batch_first=True, dropout=drop_prop)
-        self.fc = nn.Linear(in_features=512, out_features=512)
+        self.gru = nn.GRU(input_size=512, hidden_size=256, num_layers=1, batch_first=True, dropout=drop_prop)
+        self.fc = nn.Linear(in_features=256, out_features=512)
         self.relu = nn.ReLU()
         
-    def forward(self, x_prev, x):
-        h_prev = torch.zeros(1, 256)
-        for i in range(cfg.n_ARmemory):
-            x_prev[i].to(self.device)
-            x_prev[i] = self.encoder(x_prev[i])
-            x_prev[i] = x.view(x.shape[0], -1) # flatten 
-            _, h_prev = self.gru(x_prev[i], h_prev)
+    def forward(self, x_prevs, x):
+        h_prev = torch.zeros(1, 256).to(self.device)
+        for x in x_prevs:
+            x.to(self.device)
+            x = self.encoder(x)
+            x = x.view(x.shape[0], -1) # flatten 
+            _, h_prev = self.gru(x, h_prev)
         x, h = self.gru(x, h_prev)
         x = self.fc(self.relu(x)) # not sure if this is needed or if this is how we should put ReLU
         return x, h
@@ -131,11 +131,11 @@ class CPC_model(nn.Module):
         self.n_predictions = n_predictions
         self.latentpredictors = [LatentPredictor().to(device) for _ in range(n_predictions)]
         self.encoder = ConvEncoder()
-        self.ARmodel = CPCAR(device)
+        self.ARmodel = CPCAR(device).to(device)
         
-    def forward(self, x_prevs, x, generate_predictions):
+    def forward(self, x, x_prevs):
         
-        if generate_predictions == True:
+        if x_prevs != None: # if the input consists of past and current samples, generate context vector and future predictions
             x, _ = self.ARmodel(x_prevs, x)
             # make multiple predictions and output them in dict
             output = {}
@@ -145,7 +145,7 @@ class CPC_model(nn.Module):
                 if output["k+"+str(i+1)].isnan().any():
                     print('nan detected')
 
-        else: # generate prediction on positive samples
+        else: # if the input consists of only future samples, just generate their latent encodings
             x = self.encoder(x)
             output = x.view(x.shape[0], -1) # flatten 
         

@@ -68,13 +68,13 @@ def train(model, DL_train):
             future_inputs = data[cfg.n_ARmemory+1:]
             
             # pass input through encoder and get predictions of future latent representations as dict:
-            latent_predictions = model(past_inputs, current_input, generate_predictions=True)
+            latent_predictions = model(current_input, past_inputs)
             
             # get the positive samples
             positive_samples = {}
             for future_step, future_input in enumerate(future_inputs):
                 future_input = future_input.to(device)
-                positive_samples["k+"+str(future_step+1)] = model(future_input, generate_predictions=False) 
+                positive_samples["k+"+str(future_step+1)] = model(future_input, None) 
             
             loss, correct_pred_batch = criterion(latent_predictions, positive_samples)
             
@@ -105,14 +105,14 @@ def train(model, DL_train):
         train_metrics['Loss'].append(avg_loss)
         train_metrics['Accuracy'].append(acc)
 
-        val_loss, val_acc = validation(model, DL_val, device, criterion)
-        val_metrics['Epoch'].append(epoch)
-        val_metrics['Loss'].append(val_loss)
-        val_metrics['Accuracy'].append(val_acc)
+        # val_loss, val_acc = validation(model, DL_val, device, criterion)
+        # val_metrics['Epoch'].append(epoch)
+        # val_metrics['Loss'].append(val_loss)
+        # val_metrics['Accuracy'].append(val_acc)
         
-        if epoch ==1: save_dir = make_save_dir()
-        visualize_losses(save_dir, train_metrics, val_metrics)
-        save_checkpoint(save_dir, model, epoch)
+        # if epoch ==1: save_dir = make_save_dir()
+        # visualize_losses(save_dir, train_metrics, val_metrics)
+        # save_checkpoint(save_dir, model, epoch)
 
         print(f'Epoch {epoch} took a total time of {str(timedelta(seconds=(time.time() - start_epoch_time)))}')
         
