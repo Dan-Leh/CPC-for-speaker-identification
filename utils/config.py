@@ -3,9 +3,9 @@ from dataclasses import dataclass
 
 @dataclass
 class Config:
-    output_name = 'Test_AR'
-    batch_size_train = 64
-    batch_size_test = 64
+    output_name = 'Test_Twan'
+    batch_size_train = 4
+    batch_size_test = 4
     lr = 0.00001
     max_lr = 0.0001
     num_classes = 251
@@ -14,7 +14,7 @@ class Config:
     enable_cuda = True
     adam1 = 0.9
     adam2 = 0.999
-    epochs = 50
+    epochs = 2
     CPC = True
     if CPC:
         patch_size = 1.28

@@ -93,7 +93,7 @@ class LatentPredictor(nn.Module):
     def __init__(self):
         super().__init__()
         self.in_features = 512
-        self.out_features = self.in_features
+        self.out_features = 512
         self.FC = nn.Linear(in_features=self.in_features, 
                             out_features=self.out_features, 
                             bias = False)
@@ -103,14 +103,14 @@ class LatentPredictor(nn.Module):
         return x
     
 class CPCAR(nn.Module):
-    def __init__(self, device, GRU_layers=cfg.GRU_layers, drop_prop=cfg.GRU_dropout):
+    def __init__(self, device, GRU_layers=cfg.GRU_layers, drop_prop = cfg.GRU_dropout):
         super().__init__()
-        self.device = device
         self.n_layers = cfg.GRU_layers
         self.encoder = ConvEncoder()
         self.gru = nn.GRU(input_size=512, hidden_size=256, num_layers=1, batch_first=True, dropout=drop_prop)
         self.fc = nn.Linear(in_features=256, out_features=512)
         self.relu = nn.ReLU()
+        self.device = device
         
     def forward(self, x_prevs, x):
         h_prev = torch.zeros(1, 256).to(self.device)
@@ -120,10 +120,10 @@ class CPCAR(nn.Module):
             x = x.view(x.shape[0], -1) # flatten 
             _, h_prev = self.gru(x, h_prev)
         x, h = self.gru(x, h_prev)
-        x = self.fc(self.relu(x)) # not sure if this is needed or if this is how we should put ReLU
+        x = self.fc(x)
+        #x = self.fc(self.relu(x))
         return x, h
     
-
 class CPC_model(nn.Module):
     def __init__(self, device, n_predictions=cfg.n_predictions):
         super().__init__()
@@ -136,7 +136,7 @@ class CPC_model(nn.Module):
     def forward(self, x, x_prevs):
         
         if x_prevs != None: # if the input consists of past and current samples, generate context vector and future predictions
-            x, _ = self.ARmodel(x_prevs, x)
+            x , _ = self.ARmodel(x_prevs, x)
             # make multiple predictions and output them in dict
             output = {}
             output["k"] = x
@@ -150,4 +150,5 @@ class CPC_model(nn.Module):
             output = x.view(x.shape[0], -1) # flatten 
         
         return output
+
         

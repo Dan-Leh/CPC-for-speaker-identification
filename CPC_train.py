@@ -7,7 +7,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from datetime import timedelta
 
-from utils.save_functions import save_checkpoint, visualize_losses
+from utils.save_functions import *
 from utils.config import Config
 from utils.data_CPC import LibriDataset
 from utils.model import CPC_model
@@ -54,6 +54,9 @@ def train(model, DL_train):
     train_metrics = {'Epoch': [], 'Loss': [], 'Accuracy': []}
     val_metrics = {'Epoch': [], 'Loss': [], 'Accuracy': []}
 
+    save_dir = make_save_dir() 
+    save_config(save_dir)
+    
     #Training loop
     for epoch in range(cfg.epochs):
         start_epoch_time = time.time()
@@ -105,17 +108,17 @@ def train(model, DL_train):
         train_metrics['Loss'].append(avg_loss)
         train_metrics['Accuracy'].append(acc)
 
-        # val_loss, val_acc = validation(model, DL_val, device, criterion)
-        # val_metrics['Epoch'].append(epoch)
-        # val_metrics['Loss'].append(val_loss)
-        # val_metrics['Accuracy'].append(val_acc)
+        val_loss, val_acc = validation(model, DL_val, device, criterion)
+        val_metrics['Epoch'].append(epoch)
+        val_metrics['Loss'].append(val_loss)
+        val_metrics['Accuracy'].append(val_acc)
+
+        visualize_losses(save_dir, train_metrics, val_metrics)
+        save_checkpoint(save_dir, model, epoch)
         
-        # if epoch ==1: save_dir = make_save_dir()
-        # visualize_losses(save_dir, train_metrics, val_metrics)
-        # save_checkpoint(save_dir, model, epoch)
 
         print(f'Epoch {epoch} took a total time of {str(timedelta(seconds=(time.time() - start_epoch_time)))}')
-        
+    save_config(save_dir, cfg)
     print('Finished Training')
 
 
