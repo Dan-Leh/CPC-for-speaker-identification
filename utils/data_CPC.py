@@ -30,7 +30,7 @@ class LibriDataset(Dataset):
             split_name = filename.split('-')
             self.filepath_list[i] += os.path.join(split_name[0], split_name[1], filename+'.flac')
             
-        self.delete_small_items() # only use data that is long to make enough future predictions
+        self.delete_items() # only use data that is long to make enough future predictions
         self.num_samples = len(self.filename_list)
 
     # Returns the length of the dataset
@@ -55,10 +55,15 @@ class LibriDataset(Dataset):
             IDs.append(self.filename_list[idx].split('-')[0])
         return IDs
     
-    def delete_small_items(self):
+    def delete_items(self, data_percentage = cfg.data_percentage):
         mask = np.array(self.sample_lengths, dtype=np.int32) > self.patch_size*(self.n_predictions+self.n_ARmemory+1)
         self.filepath_list = np.array(self.filepath_list)[mask]
         self.filename_list = np.array(self.filename_list)[mask]
+        # delete percentage of data selected randomly
+        if data_percentage < 100:
+            mask = np.random.choice(len(self.filepath_list), int(len(self.filepath_list)*data_percentage/100), replace=False)
+            self.filepath_list = self.filepath_list[mask]
+            self.filename_list = self.filename_list[mask]
         return self
 
     def crop_audio(self, waveform):

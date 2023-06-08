@@ -15,6 +15,7 @@ class Config:
     adam1 = 0.9
     adam2 = 0.999
     epochs = 2
+    data_percentage = 50
     CPC = True
     if CPC:
         patch_size = 1.28

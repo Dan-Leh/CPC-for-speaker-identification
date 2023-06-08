@@ -4,6 +4,8 @@ import time
 import numpy as np
 import torchaudio
 from torch.utils.data import Dataset
+from config import Config
+cfg = Config()
 
 class LibriDataset(Dataset):
     def __init__(self, split='train'):
@@ -26,6 +28,7 @@ class LibriDataset(Dataset):
             self.filepath_list[i] += os.path.join(split_name[0], split_name[1], filename+'.flac')
         
         self.speakerID_list = sorted(np.array(os.listdir(Libri_dir), dtype=np.uint32)) #list of speaker IDs in ascending order
+        self.delete_items()
 
     # Returns the length of the dataset
     def __len__(self):
@@ -57,6 +60,12 @@ class LibriDataset(Dataset):
         end_idx = start_idx+crop_length
         return waveform[start_idx:end_idx].unsqueeze(0) # cropped_waveform, with channel dimension
     
+    def delete_items(self, data_percentage = cfg.data_percentage):
+        if data_percentage < 100:
+            mask = np.random.choice(len(self.filepath_list), int(len(self.filepath_list)*data_percentage/100), replace=False)
+            self.filepath_list = self.filepath_list[mask]
+            self.filename_list = self.filename_list[mask]
+        return self
     def normalize(self, spectrogram):
         '''
         Input: 'spectrogram' Tensor of dimensions 1xHxW
@@ -65,6 +74,17 @@ class LibriDataset(Dataset):
         stds, means = torch.std_mean(spectrogram, dim = 1)
         
         return (spectrogram - means) / stds
+    
+    # keep random samples from dataset
+    def keep_items(self, percentage=100):
+        assert percentage <= 100 and percentage > 0, 'Percentage must be between 0 and 100'
+        num_samples = int(self.__len__() * (percentage/100))
+        self.filename_list = self.filename_list[:num_samples]
+        self.filepath_list = self.filepath_list[:num_samples]
+        self.num_samples = num_samples
+
+
+
 
     # Returns a dataset sample given an idx [0, len(dataset))
     def __getitem__(self, idx):
