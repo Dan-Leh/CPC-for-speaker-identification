@@ -10,5 +10,5 @@ echo "Calling python file"
 # For boolean flags, do not include in the command line. 
 # Just include the flag to make the variable evaluate to True. It is false by default
 
-# python Train.py  --epoch 2 --lr 0.01
+python Train.py  --epoch 2 --lr 0.01
 python Train.py  --CPC --epoch 2
