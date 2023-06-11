@@ -169,6 +169,9 @@ if __name__ == "__main__":
         model = Classifier()
         loss_function = get_supervised_loss
         criterion = nn.CrossEntropyLoss()
+        if cfg.load_checkpoint != "":
+            model.load_state_dict(torch.load(cfg.load_checkpoint, map_location='cpu'), strict = False)
+            print(f'\nresuming training from following checkpoint: \n{cfg.load_checkpoint}')
         if cfg.freeze_encoder:
             model.convencoder.requires_grad_(False) # freeze encoder weights
         print('Training in a fully supervised manner using device {device}')
