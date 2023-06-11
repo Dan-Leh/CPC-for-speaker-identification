@@ -71,3 +71,11 @@ def save_checkpoint(save_dir, model, train_epochs):
 
     print('Model checkpoint saved.')
     return
+
+# function to save my config class to txt file
+def save_config(save_dir):
+    with open(os.path.join('utils/','config.py'), 'r') as f:
+        lines = f.readlines()
+    with open(os.path.join(save_dir, 'config.txt'), 'w') as f:
+        f.writelines(lines)
+    return
