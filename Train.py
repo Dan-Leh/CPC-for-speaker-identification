@@ -75,7 +75,7 @@ def train(model, DL_train, DL_val, loss_function, optimizer, criterion, device):
     val_metrics = {'Epoch': [], 'Loss': [], 'Accuracy': []}
     
     save_dir = make_save_dir() # make save directory if it doesn't exist yet
-    save_config(save_dir)
+    save_config(cfg, save_dir)
     
     #Training loop
     for epoch in range(cfg.epochs):
@@ -133,8 +133,8 @@ def validation(model, DL_val, device, criterion):
     
     model.eval()
 
-    for i, data in enumerate(DL_train):
-        
+    for i, data in enumerate(DL_val):
+        i += 1
         loss, correct_pred_batch = loss_function(data, criterion, model, device)
 
         #Update loss

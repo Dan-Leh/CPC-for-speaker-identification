@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 #SBATCH --partition=elec.gpu.q
-#SBATCH --output=train_log.out
+#SBATCH --output=train_log6.out
 #SBATCH --gres gpu:1
 module load cuda10.2/toolkit/10.2.89
 
@@ -12,6 +12,5 @@ source activate 5LSM0
 
 for i in {1..10}; 
 do
-    python Train.py  --replicate_CPC_params --epochs 20 --random_search --output_name "FS_random_search_first_run_$i"
+    python Train.py  --freeze_encoder --epochs 10 --random_search --output_name "CPC_Classifier_random_search_first_run_$i"
 done
-

@@ -40,7 +40,7 @@ class ConvEncoder(nn.Module):
         # First Convolution Block 
         self.conv1 = nn.Conv2d(1, 8, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2))
         self.relu = nn.ReLU()
-        self.max = nn.MaxPool2d(2,2)
+        self.max = nn.MaxPool2d(2,stride = 2)
         self.bn1 = nn.BatchNorm2d(8)
         init.kaiming_normal_(self.conv1.weight, a=0.1)
         self.conv1.bias.data.zero_()
@@ -104,10 +104,10 @@ class LatentPredictor(nn.Module):
     
     
 class AR_CPC(nn.Module):
-    def __init__(self, drop_prop = cfg.GRU_dropout):
+    def __init__(self):
         super().__init__()
         self.encoder = ConvEncoder()
-        self.gru = nn.GRU(input_size=512, hidden_size=256, num_layers=1, batch_first=True, dropout=drop_prop)
+        self.gru = nn.GRU(input_size=512, hidden_size=256, num_layers=1, batch_first=True)
         # self.fc = nn.Linear(in_features=256, out_features=512)
         # self.relu = nn.ReLU()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

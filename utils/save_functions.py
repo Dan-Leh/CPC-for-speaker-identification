@@ -5,6 +5,7 @@ import torch
 import os
 import shutil
 import pandas as pd
+import json
 
 def visualize_losses(save_dir, train_metrics, val_metrics):
     
@@ -73,9 +74,13 @@ def save_checkpoint(save_dir, model, train_epochs):
     return
 
 # function to save my config class to txt file
-def save_config(save_dir):
-    with open(os.path.join('utils/','config.py'), 'r') as f:
-        lines = f.readlines()
-    with open(os.path.join(save_dir, 'config.txt'), 'w') as f:
-        f.writelines(lines)
-    return
+# def save_config(save_dir):
+#     with open(os.path.join('utils/','config.py'), 'r') as f:
+#         lines = f.readlines()
+#     with open(os.path.join(save_dir, 'config.txt'), 'w') as f:
+#         f.writelines(lines)
+#     return
+
+def save_config(config, save_dir):
+    with open(os.path.join(save_dir, 'config.txt'), 'w') as file:
+        json.dump(config.__dict__, file, indent=4)

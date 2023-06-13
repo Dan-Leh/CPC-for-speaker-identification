@@ -12,6 +12,5 @@ source activate 5LSM0
 
 for i in {1..10}; 
 do
-    python Train.py  --replicate_CPC_params --epochs 20 --random_search --output_name "FS_random_search_first_run_$i"
+    python Train.py  --replicate_CPC_params --epochs 20 --random_search --output_name "FS_random_search_second_run_$i"
 done
-
