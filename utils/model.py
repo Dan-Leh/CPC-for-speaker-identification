@@ -40,7 +40,7 @@ class ConvEncoder(nn.Module):
         # First Convolution Block 
         self.conv1 = nn.Conv2d(1, 8, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2))
         self.relu = nn.ReLU()
-        self.max = nn.MaxPool2d(2,stride = 2)
+        self.max = nn.MaxPool2d((2,2),stride = 2)
         self.bn1 = nn.BatchNorm2d(8)
         init.kaiming_normal_(self.conv1.weight, a=0.1)
         self.conv1.bias.data.zero_()

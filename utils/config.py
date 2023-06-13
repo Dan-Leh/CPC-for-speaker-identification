@@ -106,13 +106,13 @@ else:
     num_iterations=args.num_iterations,
     output_name=args.output_name,
     epochs=args.epochs,
+    patch_size=args.patch_size,
     
     batch_size_train=np.random.randint(10, 50),
     batch_size_test=np.random.randint(10, 50),
-    lr=np.random.uniform(0.00001, 0.0001),
-    max_lr=np.random.uniform(0.001, 0.01),
-    patch_size=np.random.uniform(0.5, 2.0),
-    n_predictions=np.random.randint(1, 5),
+    lr=np.random.uniform(0.00001, 0.001),
+    max_lr=np.random.uniform(0.0011, 0.01),
+    n_predictions=np.random.randint(2, 12),
     n_negatives=np.random.randint(5, 20),
     n_past_latents=np.random.randint(1, 5),)
             
