@@ -30,13 +30,11 @@ class Config:
     load_checkpoint: str
     
     random_search : bool
-    num_iterations : int
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Config parameters')
     # Training hyperparameters
-    parser.add_argument('--batch_size_train', type=int, default=30, help='Batch size for training')
-    parser.add_argument('--batch_size_test', type=int, default=30, help='Batch size for testing')
+    parser.add_argument('--batch_size', type=int, default=30, help='Batch size for training and testing')
     parser.add_argument('--lr', type=float, default=0.00001, help='Learning rate')
     parser.add_argument('--max_lr', type=float, default=0.0001, help='Maximum learning rate')
     parser.add_argument('--num_classes', type=int, default=251, help='Number of classes') # currently not used
@@ -61,7 +59,6 @@ def parse_args():
     parser.add_argument('--load_checkpoint', type=str, default="", help='Path to checkpoint to load')
 
     parser.add_argument('--random_search', action='store_true', help='set to true if running random search')
-    parser.add_argument('--num_iterations', type=int, default=None, help='number of random search iterations')
     
     args = parser.parse_args()
     return args
@@ -69,51 +66,32 @@ def parse_args():
 args = parse_args()
 assert (args.CPC and args.replicate_CPC_params) == False, "replicate CPC parameters only relevant for supervised training"
 
-if args.random_search == False:
-    CONFIG = Config(
-    num_classes=args.num_classes,
-    gt_dir=args.gt_dir,
-    log_iterations=args.log_iterations,
-    data_percentage=args.data_percentage, 
-    CPC=args.CPC,
-    replicate_CPC_params=args.replicate_CPC_params, 
-    freeze_encoder=args.freeze_encoder,
-    load_checkpoint=args.load_checkpoint,
-    random_search=args.random_search,
-    num_iterations=args.num_iterations,
-    output_name=args.output_name,
-    batch_size_train=args.batch_size_train,
-    batch_size_test=args.batch_size_test,
-    lr=args.lr,
-    max_lr=args.max_lr,
-    epochs=args.epochs,
-    patch_size=args.patch_size,
-    n_predictions=args.n_predictions,
-    n_negatives=args.n_negatives,
-    n_past_latents=args.n_past_latents,)
-else:
-    # for i in range(args.num_iterations):
-    CONFIG = Config(
-    num_classes=args.num_classes,
-    gt_dir=args.gt_dir,
-    log_iterations=args.log_iterations,
-    data_percentage=args.data_percentage, 
-    CPC=args.CPC,
-    replicate_CPC_params=args.replicate_CPC_params, 
-    freeze_encoder=args.freeze_encoder,
-    load_checkpoint=args.load_checkpoint,
-    random_search=args.random_search,
-    num_iterations=args.num_iterations,
-    output_name=args.output_name,
-    epochs=args.epochs,
-    patch_size=args.patch_size,
-    
-    batch_size_train=np.random.randint(10, 50),
-    batch_size_test=np.random.randint(10, 50),
-    lr=np.random.uniform(0.00001, 0.001),
-    max_lr=np.random.uniform(0.0011, 0.01),
-    n_predictions=np.random.randint(2, 12),
-    n_negatives=np.random.randint(5, 20),
-    n_past_latents=np.random.randint(1, 5),)
-            
-    
+CONFIG = Config(
+num_classes=args.num_classes,
+gt_dir=args.gt_dir,
+log_iterations=args.log_iterations,
+data_percentage=args.data_percentage, 
+CPC=args.CPC,
+replicate_CPC_params=args.replicate_CPC_params, 
+freeze_encoder=args.freeze_encoder,
+load_checkpoint=args.load_checkpoint,
+random_search=args.random_search,
+output_name=args.output_name,
+batch_size_train=args.batch_size,
+batch_size_test=args.batch_size,
+lr=args.lr,
+max_lr=args.max_lr,
+epochs=args.epochs,
+patch_size=args.patch_size,
+n_predictions=args.n_predictions,
+n_negatives=args.n_negatives,
+n_past_latents=args.n_past_latents)
+
+if args.random_search:
+    CONFIG.batch_size_train=np.random.randint(10, 64)
+    CONFIG.batch_size_test=CONFIG.batch_size_train
+    CONFIG.lr=np.random.uniform(0.000001, 0.01)
+    CONFIG.max_lr=np.random.uniform(CONFIG.lr, 1)
+    CONFIG.n_predictions=np.random.randint(1, 10)
+    CONFIG.n_negatives=np.random.randint(2, CONFIG.batch_size_train)
+    CONFIG.n_past_latents=np.random.randint(1, 12-CONFIG.n_predictions)

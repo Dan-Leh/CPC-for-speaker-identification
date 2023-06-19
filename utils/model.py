@@ -134,6 +134,7 @@ class CPC_model(nn.Module):
         self.latentpredictors = [LatentPredictor().to("cuda" if torch.cuda.is_available() else "cpu") for _ in range(n_predictions)]
         self.encoder = ConvEncoder()
         self.ARmodel = AR_CPC()
+        self.num_nans = 0
         
     def forward(self, x, generate_predictions):
         
@@ -144,7 +145,11 @@ class CPC_model(nn.Module):
             for i in range(self.n_predictions):
                 latent_predictions["k+"+str(i+1)] = self.latentpredictors[i](context_vector)
                 if latent_predictions["k+"+str(i+1)].isnan().any():
+                    self.num_nans+=1
                     print('nan detected')
+                    if self.num_nans > 10:
+                        print('More than 10 nans detected, exiting program')
+                        exit()
             return latent_predictions, past_latent_list
 
         else: # if the input consists of only future samples, just generate their latent encodings

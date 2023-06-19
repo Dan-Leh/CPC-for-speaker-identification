@@ -29,35 +29,6 @@ def visualize_losses(save_dir, train_metrics, val_metrics):
     print('Plots containing losses and mIoU have been saved.')
     return
 
-# def visualize_losses(save_dir, df_train, df_val):
-#     df_train_epochs = df_train.groupby("epoch")
-#     mean_df_train = df_train_epochs.mean()
-
-#     mean_df_train.to_csv(os.path.join(save_dir,'train_metrics.csv'))
-#     df_val.to_csv(os.path.join(save_dir,'val_metrics.csv'))
-
-#     epochs = df_val['epoch'].to_numpy()    
-#     train_losses = mean_df_train['loss'].to_numpy()
-#     train_miou = mean_df_train['accuracy'].to_numpy()
-#     val_losses = df_val['loss'].to_numpy()
-#     val_miou = df_val['accuracy'].to_numpy()
-
-#     fig, ax = plt.subplots(2,1, sharex=True)
-#     ax[0].plot(epochs, train_miou, linestyle='-', color='blue', label='train')
-#     ax[0].plot(epochs, val_miou, linestyle='-', color='orange', label='val')
-#     ax[0].set_title('mIoU value')
-#     ax[0].legend()
-
-#     ax[1].plot(epochs, train_losses, linestyle='-', color='blue', label='train')
-#     ax[1].plot(epochs, val_losses, linestyle='-', color='orange', label='val')
-#     ax[1].set_title('Loss value')
-#     ax[1].legend()
-
-#     ax[1].set_xlabel('Training epoch')    
-#     plt.savefig(os.path.join(save_dir, 'loss_plots.png'))
-
-#     print('Plots containing losses and mIoU have been saved.')
-#     return
 
 def save_checkpoint(save_dir, model, train_epochs):
     save_name = 'ckpt_' + str(train_epochs) + 'epochs.pth'

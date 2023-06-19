@@ -21,6 +21,7 @@ class InfoNCELoss(nn.Module):
             'positive_samples': dict with keys 'k+1' to 'k+n_predictions', each item of size batch_sizex512
         Output:
             'loss': scalar loss
+            'correct predictions': mean of correct predictions for each future latent space
         '''
         loss = 0
         negative_samples = {}
@@ -29,7 +30,7 @@ class InfoNCELoss(nn.Module):
         for future_step, k in enumerate(self.k_future):
 
             negative_samples[k] = torch.zeros((batch_size, cfg.n_negatives, 512)).to(self.device) # initialize empty tensor
-            for batch_idx in range(cfg.batch_size_train): 
+            for batch_idx in range(batch_size): 
                 negatives = torch.Tensor([]).to(self.device)
                 
                 for _ in range(cfg.n_negatives):
