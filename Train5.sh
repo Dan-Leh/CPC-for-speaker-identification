@@ -6,9 +6,11 @@
 module load cuda10.2/toolkit/10.2.89
 
 echo "Calling python file"
-
+source activate 5LSM0
 # For boolean flags, do not include in the command line. 
 # Just include the flag to make the variable evaluate to True. It is false by default
 
-python Train.py  --epoch 2 --lr 0.01
-python Train.py  --CPC --epoch 2
+for i in {1..10}; 
+do
+    python Train.py  --CPC --epochs 20 --random_search --output_name "CPC_random_search_third_run_$i"
+done

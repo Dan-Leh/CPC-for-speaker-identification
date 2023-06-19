@@ -1,0 +1,18 @@
+#!/usr/bin/bash
+
+#SBATCH --partition=elec.gpu.q
+#SBATCH --output=train_log8.out
+#SBATCH --gres gpu:1
+module load cuda10.2/toolkit/10.2.89
+
+echo "Calling python file"
+source activate 5LSM0
+# For boolean flags, do not include in the command line. 
+# Just include the flag to make the variable evaluate to True. It is false by default
+
+# for i in {1..10}; 
+# do
+#     python Train.py  --freeze_encoder --epochs 10 --random_search --output_name "CPC_Classifier_random_search_third_run_$i"
+# done
+
+python Train.py --CPC --epochs 10 --batch_size 102411682130 --output_name "CPC_Classifier_random_search_third_run_$i"

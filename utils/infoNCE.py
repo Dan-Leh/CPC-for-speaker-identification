@@ -13,15 +13,15 @@ class InfoNCELoss(nn.Module):
         self.k_past_present = ["k-"+str(i+1) for i in range(cfg.n_past_latents)] + ["k"]
         self.k_all = self.k_past_present + self.k_future
         self.device = device
-        
 
-    def forward(self, latent_predictions, positive_samples, past_latents):
+    def forward(self, latent_predictions, positive_samples, past_latents, batch_size):
         '''
         Inputs:
             'latent_predictions': dict with keys 'k' to 'k+n_predictions', each item of size batch_sizex512
             'positive_samples': dict with keys 'k+1' to 'k+n_predictions', each item of size batch_sizex512
         Output:
             'loss': scalar loss
+            'correct predictions': mean of correct predictions for each future latent space
         '''
         loss = 0
         negative_samples = {}
@@ -29,15 +29,15 @@ class InfoNCELoss(nn.Module):
         
         for future_step, k in enumerate(self.k_future):
 
-            negative_samples[k] = torch.zeros((cfg.batch_size_train, cfg.n_negatives, 512)).to(self.device) # initialize empty tensor
-            for batch_idx in range(cfg.batch_size_train): 
+            negative_samples[k] = torch.zeros((batch_size, cfg.n_negatives, 512)).to(self.device) # initialize empty tensor
+            for batch_idx in range(batch_size): 
                 negatives = torch.Tensor([]).to(self.device)
                 
                 for _ in range(cfg.n_negatives):
                     # choose random time index 'k-n_past_latents' to 'k+n_predictions'
                     time_index_choice = choice(self.k_all) 
                     # choose a sample which is not positive, i.e. a batch index different from 'batch_idx'
-                    batch_index_choice = choice(list(range(0, batch_idx))+list(range(batch_idx+1, cfg.batch_size_train)))
+                    batch_index_choice = choice(list(range(0, batch_idx))+list(range(batch_idx+1, batch_size)))
                     # Take a latent from the list of positive samples of other batch indeces => negative sample for current batch_idx
                     if time_index_choice in self.k_future:
                         negative_sample = positive_samples[time_index_choice][batch_index_choice]
@@ -59,12 +59,12 @@ class InfoNCELoss(nn.Module):
             np_fk_positives = fk_positives.detach().cpu().numpy()
             np_fk_negatives = fk_negatives.detach().cpu().numpy()
             
-            for batch_idx in range(cfg.batch_size_train): 
+            for batch_idx in range(batch_size): 
                 correct_predictions[future_step] += all(np_fk_positives[batch_idx] > np_fk_negatives[batch_idx])
         
         loss /= cfg.n_predictions # average the number of predictions
         
-        loss = -torch.sum(loss)/cfg.batch_size_train # average loss across batch
+        loss = -torch.sum(loss)/batch_size # average loss across batch
         
         correct_predictions = np.mean(correct_predictions)
              

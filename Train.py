@@ -32,7 +32,7 @@ def make_save_dir():
     return save_dir
 
 
-def get_CPC_loss(data, criterion, model, device):
+def get_CPC_loss(data, criterion, model, device, batch_size):
     data = data.to(device) # tensor of size (batch_size, n_past_latents+n_predictions+1, channels, height, width)
     data = torch.transpose(data, 0, 1) # convert to size (n_past_latents+n_predictions+1, batch_size, channels, height, width)
     past_present_inputs = data[0:cfg.n_past_latents+1] 
@@ -47,12 +47,12 @@ def get_CPC_loss(data, criterion, model, device):
         future_input = future_input
         positive_samples["k+"+str(future_step+1)] = model(future_input, generate_predictions=False)  
     
-    loss, correct_pred_batch = criterion(latent_predictions, positive_samples, past_latents)
+    loss, correct_pred_batch = criterion(latent_predictions, positive_samples, past_latents, batch_size)
     
     return loss, correct_pred_batch
 
 
-def get_supervised_loss(data, criterion, model, device):
+def get_supervised_loss(data, criterion, model, device, batch_size):
     inputs, labels = data[0].to(device), data[1].to(device)
     outputs = model(inputs)
     loss = criterion(outputs, labels)
@@ -75,7 +75,7 @@ def train(model, DL_train, DL_val, loss_function, optimizer, criterion, device):
     val_metrics = {'Epoch': [], 'Loss': [], 'Accuracy': []}
     
     save_dir = make_save_dir() # make save directory if it doesn't exist yet
-    save_config(save_dir)
+    save_config(cfg, save_dir)
     
     #Training loop
     for epoch in range(cfg.epochs):
@@ -87,7 +87,7 @@ def train(model, DL_train, DL_val, loss_function, optimizer, criterion, device):
         for i, data in enumerate(DL_train):
             i += 1 # start at iteration 1, not 0
             
-            loss, correct_pred_batch = loss_function(data, criterion, model, device)
+            loss, correct_pred_batch = loss_function(data, criterion, model, device, cfg.batch_size_train)
             
             optimizer.zero_grad()
             loss.backward() # Backprop
@@ -133,9 +133,9 @@ def validation(model, DL_val, device, criterion):
     
     model.eval()
 
-    for i, data in enumerate(DL_train):
-        
-        loss, correct_pred_batch = loss_function(data, criterion, model, device)
+    for i, data in enumerate(DL_val):
+        i += 1
+        loss, correct_pred_batch = loss_function(data, criterion, model, device, cfg.batch_size_test)
 
         #Update loss
         running_loss += loss.item()
