@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 #SBATCH --partition=elec.gpu.q
-#SBATCH --output=train_CPC_log_1.out
+#SBATCH --output=train_CPC_log_5.out
 #SBATCH --gres gpu:1
 module load cuda10.2/toolkit/10.2.89
 
@@ -13,6 +13,6 @@ source activate 5LSM0
 for i in {1..10}; 
 do
     CHECKPOINT_FILE="/home/tue/20191313/5aua0-2022-group-18/trained_models/CPC_candidates/CPC_random_search_2_1/ckpt_20epochs.pth"
-    python Train.py  --epochs 20 --random_search --output_name "3_CPC_2_1_unfrozen_random_search_$i"\
+    python Train.py  --epochs 20 --random_search --freeze_encoder --output_name "2_CPC_2_1_random_search_$i"\
         --load_checkpoint $CHECKPOINT_FILE
 done

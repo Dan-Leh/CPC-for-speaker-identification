@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 #SBATCH --partition=elec.gpu.q
-#SBATCH --output=train_log6.out
+#SBATCH --output=train_FS_100_log.out
 #SBATCH --gres gpu:1
 module load cuda10.2/toolkit/10.2.89
 
@@ -10,8 +10,6 @@ source activate 5LSM0
 # For boolean flags, do not include in the command line. 
 # Just include the flag to make the variable evaluate to True. It is false by default
 
-for i in {1..10}; 
-do
-    python Train.py  --freeze_encoder --load_checkpoint 'trained_models/CPC_random_search_third_run_2/ckpt_20epochs.pth' --epochs 10 --random_search --output_name "CPC_Classifier_frozen_encoder_random_search_first_run_$i"
-done
+
+python Train.py --data_percentage 100 --epochs 100 --n_predictions 5 --n_negatives 16 --n_past_latents 1 --replicate_CPC_params --batch_size 26 --lr 0.0036679001150894475 --max_lr 0.005722272739232646 --output_name "Fully_supervised_100"
 

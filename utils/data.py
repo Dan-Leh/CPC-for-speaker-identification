@@ -26,7 +26,9 @@ class LibriDataset(Dataset):
         for i, filename in enumerate(self.filename_list):
             split_name = filename.split('-')
             self.filepath_list[i] += os.path.join(split_name[0], split_name[1], filename+'.flac')
-    
+            
+        original_length = len(self.filename_list)
+        
         if cfg.CPC or cfg.replicate_CPC_params: # CPC training or training fully supervised, but with same amount of data as CPC training:
             self.n_predictions = n_predictions
             self.n_past_latents = n_past_latents
@@ -44,9 +46,13 @@ class LibriDataset(Dataset):
                 self.delete_items(cfg.data_percentage) # delete percentage of data selected randomly
             
         self.num_samples = len(self.filename_list)
+        self.percentageData = self.num_samples/original_length*100
         
 
     # Returns the length of the dataset
+    def __percentageData__(self):
+        return self.percentageData
+    
     def __len__(self):
         return self.num_samples
 

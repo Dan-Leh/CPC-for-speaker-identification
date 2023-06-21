@@ -12,5 +12,7 @@ source activate 5LSM0
 
 for i in {1..10}; 
 do
-    python Train.py  --CPC --epochs 20 --random_search --output_name "CPC_random_search_2_$i"
+    CHECKPOINT_FILE="/home/tue/20191313/5aua0-2022-group-18/trained_models/CPC_candidates/CPC_random_search_2_1/ckpt_20epochs.pth"
+    python Train.py  --epochs 20 --random_search --output_name "4_CPC_2_1_unfrozen_random_search_$i"\
+        --load_checkpoint $CHECKPOINT_FILE
 done
