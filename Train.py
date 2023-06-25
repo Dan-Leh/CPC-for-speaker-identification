@@ -61,7 +61,7 @@ def get_supervised_loss(data, criterion, model, device, batch_size):
     return loss, correct_pred_batch
 
 
-def train(model, DL_train, DL_val, loss_function, optimizer, criterion, device):
+def train(model, DL_train, DL_val, loss_function, optimizer, criterion, device, dataPercentageTrain, dataPercentageTest):
     scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=cfg.max_lr,
                                                 steps_per_epoch=int(len(DL_train)),
                                                 epochs=cfg.epochs,
@@ -75,7 +75,7 @@ def train(model, DL_train, DL_val, loss_function, optimizer, criterion, device):
     val_metrics = {'Epoch': [], 'Loss': [], 'Accuracy': []}
     
     save_dir = make_save_dir() # make save directory if it doesn't exist yet
-    save_config(cfg, save_dir)
+    save_config(cfg, save_dir, dataPercentageTrain, dataPercentageTest)
     
     #Training loop
     for epoch in range(cfg.epochs):
@@ -120,7 +120,7 @@ def train(model, DL_train, DL_val, loss_function, optimizer, criterion, device):
         val_metrics['Accuracy'].append(val_acc)
 
         visualize_losses(save_dir, train_metrics, val_metrics)
-        save_checkpoint(save_dir, model, epoch)
+        save_checkpoint(save_dir, model, epoch, val_metrics)
 
         print(f'Epoch {epoch} took a total time of {str(timedelta(seconds=(time.time() - start_epoch_time)))}')
     print('Finished Training')
@@ -156,6 +156,8 @@ if __name__ == "__main__":
     # Load data
     trainset = LibriDataset('train')
     testset = LibriDataset('test')  
+    dataPercentageTrain = trainset.__percentageData__()
+    dataPercentageTest = testset.__percentageData__()  
     DL_train = DataLoader(trainset, batch_size=cfg.batch_size_train, shuffle=True, drop_last=True)
     DL_val = DataLoader(testset, batch_size=cfg.batch_size_test, shuffle=False, drop_last=True)
     
@@ -178,6 +180,6 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg.lr, weight_decay=1e-5)
     
     # Train model
-    train(model, DL_train, DL_val, loss_function, optimizer, criterion, device)
+    train(model, DL_train, DL_val, loss_function, optimizer, criterion, device, dataPercentageTrain, dataPercentageTest)
     
     print(f'Program ran for a total time of {str(timedelta(seconds=(time.time() - start_time)))}')

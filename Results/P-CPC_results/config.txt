@@ -1,0 +1,22 @@
+{
+    "batch_size_train": 33,
+    "batch_size_test": 33,
+    "lr": 0.001,
+    "max_lr": 0.005,
+    "num_classes": 251,
+    "epochs": 100,
+    "data_percentage": 100,
+    "patch_size": 1.28,
+    "output_name": "CPC_enc_100epochv2",
+    "gt_dir": "./data/LibriSpeech/",
+    "log_iterations": 100,
+    "CPC": true,
+    "replicate_CPC_params": false,
+    "n_predictions": 5,
+    "n_negatives": 16,
+    "n_past_latents": 1,
+    "freeze_encoder": false,
+    "load_checkpoint": "",
+    "random_search": false
+}TRAIN: Percentage of amount samples used is 84.14805081033727% 
+TEST: Percentage of amount samples used is 84.14805081033727% 
