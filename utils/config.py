@@ -88,10 +88,10 @@ n_negatives=args.n_negatives,
 n_past_latents=args.n_past_latents)
 
 if args.random_search:
-    CONFIG.batch_size_train=np.random.randint(10, 128)
+    CONFIG.batch_size_train=np.random.randint(10, 64)
     CONFIG.batch_size_test=CONFIG.batch_size_train
     CONFIG.lr=np.random.uniform(0.000001, 0.0005)
-    CONFIG.max_lr=np.random.uniform(CONFIG.lr, 0.001)
+    CONFIG.max_lr=np.random.uniform(CONFIG.lr, CONFIG.lr*10)
     CONFIG.n_predictions=np.random.randint(1, 10)
     CONFIG.n_negatives=np.random.randint(2, CONFIG.batch_size_train//3)
     CONFIG.n_past_latents=np.random.randint(1, 12-CONFIG.n_predictions)

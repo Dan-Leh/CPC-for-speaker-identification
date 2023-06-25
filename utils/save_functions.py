@@ -34,28 +34,11 @@ def save_checkpoint(save_dir, model, train_epochs, val_metrics):
     save_name = 'ckpt_' + str(train_epochs) + 'epochs.pth'
     save_path = os.path.join(save_dir, save_name)
     
-    if train_epochs == 1:
-        state_dict = model.state_dict()
-        torch.save(state_dict, save_path)
-        
-    elif val_metrics['Loss'][-1] < min(val_metrics['Loss'][:-1]):
-#    if any(x > val_metrics['Loss'][-1] for x in val_metrics['Loss'][:-1]):
-        for file in os.listdir(save_dir): 
-            if file.endswith('epochs.pth'): 
-                os.remove(os.path.join(save_dir, file))
-                state_dict = model.state_dict()
-                torch.save(state_dict, save_path)
+    state_dict = model.state_dict()
+    torch.save(state_dict, save_path)
 
     print('Model checkpoint saved.')
     return
-
-# function to save my config class to txt file
-# def save_config(save_dir):
-#     with open(os.path.join('utils/','config.py'), 'r') as f:
-#         lines = f.readlines()
-#     with open(os.path.join(save_dir, 'config.txt'), 'w') as f:
-#         f.writelines(lines)
-#     return
 
 def save_config(config, save_dir, dataPercentageTrain, dataPercentageTest):
     with open(os.path.join(save_dir, 'config.txt'), 'w') as file:
