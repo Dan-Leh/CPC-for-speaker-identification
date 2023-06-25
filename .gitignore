@@ -141,3 +141,4 @@ data/LibriSpeech/*
 trained_models/*
 *.png
 *.out
+*.DS_Store
