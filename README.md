@@ -16,39 +16,42 @@ You need these packages:
 - pandas 1.5.3
 
 # How to train
-First clone the repository to a folder on your pc. Then create a folder in the main directory: ``data/<your_dataset>`` where ``your_dataset``. How to get the right dataset:
-- We used the LibriSpeech 'train-clean-100' dataset from http://www.openslr.org/12/.
-- Unpack the file such you get the path ``data/LibriSpeech``
+First clone the repository to a folder on your pc. Then download the correct dataset and place it in the 'data' directory, using the following steps:
+- Create a directory called "LibriSpeech"
+- In that directory, download the LibriSpeech 'train-clean-100' dataset from http://www.openslr.org/12/.
+- Unzip the download such that the audio data can be found under the following path: ``data/LibriSpeech/train-clean-100``
 
 
-There are three ways of training (within the .sh files you can change the hyperparameters, please check the ``utils/config.py`` to see all options):
+There are three models to be trained to replicate the results reported in our paper. The instructions to train them are individually described below. Before training, please create a directory called ``trained_models`` in the root directory. The training and validation losses and model checkpoints for each model you train will be saved in this folder.
 
-## Training the CLE (CPC with Locked Encoder)
+## Training the CLE (Classifier with CPC-pretrained Locked Encoder)
 1. First train the encoder using CPC:
 ```
 sbatch Train_P-CPC_EXAMPLE.sh
 ```
-2. Within Train_CLE_EXAMPLE.sh specify the path to the checkpoint. That's the best .pth file created in the previous step.
+2. Within Train_CLE_EXAMPLE.sh, specify the path to the default saved checkpoint. That's the best .pth file created in the previous step.
 
 3. Train the classyfying fully connected layer:
 ```
 sbatch Train_CLE_EXAMPLE.sh
 ```
 
-## Training the CUE (CPC with Unlocked Encoder)
+## Training the CUE (Classifier with CPC-pretrained Unlocked Encoder)
 1. First train the encoder using CPC (if not done already):
 ```
 sbatch Train_P-CPC_EXAMPLE.sh
 ```
-2. Within Train_CUE_EXAMPLE.sh specify the path to the checkpoint. That's the best .pth file created in the previous step.
+2. Within Train_CUE_EXAMPLE.sh, specify the path to the default saved checkpoint. That's the best .pth file created in the previous step.
 
 3. Train the classyfying fully connected layer:
 ```
 sbatch Train_CUE_EXAMPLE.sh
 ```
 
-## Training the FS (Fully supervised)
+## Training the FS (Fully supervised model)
 Simply run the following command:
 ```
 sbatch Train_FS.sh
 ```
+
+Note that within the bash files, a number of flags can be set to change some hyperparameters. Please check the ``utils/config.py`` to see all the hyperparameter options as well as their default values.
