@@ -1,6 +1,6 @@
 ![image](https://user-images.githubusercontent.com/112875332/232781631-bb8b5604-8e4f-4d55-bf67-d452007e17ea.png)
 
-Hello, and welcome to Dan Lehman and Twan Leloup's project on using Contrastive Predictive Coding for speaker identification in the course 5AUA0 Advanced sensing using deep learning. Here you will find all the information you need for running our code. 
+Hello, and welcome to Dan Lehman and Twan Leloup's project on using Contrastive Predictive Coding for speaker identification in the course 5AUA0 Advanced sensing using deep learning. This readme provides the information you need for running our code, and the paper is uploaded [here](https://github.com/Dan-Leh/CPC-for-speaker-identification/blob/master/Submitted%20Paper.pdf).
 
 ### Requirements:
 You need these packages:
